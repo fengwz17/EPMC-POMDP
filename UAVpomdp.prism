@@ -110,10 +110,13 @@ endmodule
 rewards
 
 	(x1 - x2)^2 + (y1 - y2)^2 <= NMAC : -1000000;
-	true : 1000; 
-	[turnLeft]  !(x1 = 0 & y1 = 30): -1;
-	[turnRight]  !(x1 = 0 & y1 = 30): -1;
-	[goAhead] !(x1 = 0 & y1 = 30): 0;  
+
+	// [done] true : 1000; 
+	x1 = 0 & y1 = 30 : 1000;
+
+	[turnLeft]  !(x1 = 0 & y1 = 30) : -1;
+	[turnRight]  !(x1 = 0 & y1 = 30) : -1;
+	[goAhead] !(x1 = 0 & y1 = 30) : 0;  
 
 endrewards
 
