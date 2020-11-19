@@ -40,13 +40,13 @@ module intruder
 
 	x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 & y2' = y2 - 1) + 1/2 : (x2' = x2 - 1 & y2' = y2);
 
-	-10 < x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 & y2' = y2 -1)
-														 + 1/3 : (x2' = x2 + 1 & y2' = y2) 
-														 + 1/3 : (x2' = x2 - 1 & y2' = y2)
+	-10 < x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 & y2' = y2 -1) + 1/3 : (x2' = x2 + 1 & y2' = y2) + 1/3 : (x2' = x2 - 1 & y2' = y2)
 endmodule
 
 // own aircraft
 // [action] curr state -> next state distribution & observable distribution
+// [action] guard -> prob_state_1 : ( next_state_1 & (prob_observ_1 : next_observ_1 + ... + prob_observ_n : next_observ_n))
+//  + ... + prob_state_m : (next_state_m & (prob_observ_1 : next_observ_1 + ... + prob_observ_n : next_observ_n));
 module own
 
 	x1 : [-10.. 10] init 0;
@@ -67,7 +67,7 @@ module own
 	// turn left and observe left, right, no-detection
 	[turnLeft] -10 < x1 <= 10 & dis <= detectRange & x2 <= x1 -> (x1' = x1 - 1) & (y1' = y1) & (0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0));
 	[turnLeft] -10 < x1 <= 10 & dis <= detectRange & x2 > x1 -> (x1' = x1 - 1) & (y1' = y1) & (0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0));
-	[turnLefteft] -10 < x1 <= 10 & dis > detectRange -> (x1' = x1 - 1) & (y1' = y1) & (0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0));
+	[turnLeft] -10 < x1 <= 10 & dis > detectRange -> (x1' = x1 - 1) & (y1' = y1) & (0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0));
 
 	// turn right
 	[turnRight] -10 <= x1 < 10 & dis <= detectRange & x2 <= x1 -> (x1' = x1 + 1) & (y1' = y1) & (0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0));
