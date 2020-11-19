@@ -2,7 +2,7 @@
 // UAV collision avoidance
 // discrete states
 // test
-// feng weizhi
+// feng wz
 
 // state space (value of variable "(x, y)")
 // s = (x1, y1, x2, y2)
