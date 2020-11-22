@@ -23,8 +23,8 @@ EPMC-POMDP Project daily progress
 2、状态转移支持observation distribution.
 
 #### 一些困难
-1、读prism-forma代码，代码中很多地方弄不清楚在做什么..没办法准确定位自己要对那些部分进行扩展，对那些地方的名字、参数、调用进行修改；
+1、读prism-forma代码，代码中很多地方弄不清楚在做什么....没办法准确定位自己要进行扩展的部分，对那些地方的名字、参数、调用进行修改；
 
 2、不知道如何方便的进行调试：
 
-目前感觉应该在distribution下添加一个pomdp/build.sh，编译带有pomdp扩展的epmc-pomdp.jar，然后用其跑pomdp-prism格式的文件。
+目前感觉应该在distribution下添加一个pomdp/build.sh，编译带有pomdp扩展的epmc-pomdp.jar，然后用其跑pomdp-prism格式的文件，但是感觉每次运行build.sh都需要很长时间进行编译，比较麻烦..
