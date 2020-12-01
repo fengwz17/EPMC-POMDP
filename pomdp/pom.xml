@@ -1,6 +1,6 @@
 <project>
   <modelVersion>4.0.0</modelVersion>
-  <groupId>epmc.prism</groupId>
+  <groupId>epmc.pomdp</groupId>
   <artifactId>epmc-pomdp</artifactId>
   <version>0</version>
   <parent>
@@ -44,6 +44,13 @@
       <version>0</version>
       <scope>system</scope>
       <systemPath>${project.basedir}/../jani-model/target/epmc-jani-model-0.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>epmc.prism</groupId>
+      <artifactId>epmc-prism-format</artifactId>
+      <version>0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/../prism-format/target/epmc-prism-format-0.jar</systemPath>
     </dependency>
     <dependency>
       <groupId>epmc.expression.standard</groupId>

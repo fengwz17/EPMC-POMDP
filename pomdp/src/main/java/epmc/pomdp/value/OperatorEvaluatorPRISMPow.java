@@ -21,7 +21,7 @@
 package epmc.pomdp.value;
 
 import epmc.operator.Operator;
-import epmc.pomdp.operator.OperatorPRISMPow;
+import epmc.prism.operator.OperatorPRISMPow;
 import epmc.value.OperatorEvaluator;
 import epmc.value.Type;
 import epmc.value.TypeDouble;

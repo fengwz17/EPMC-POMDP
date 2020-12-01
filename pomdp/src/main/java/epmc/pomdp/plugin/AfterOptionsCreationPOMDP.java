@@ -32,9 +32,9 @@ import epmc.pomdp.model.LowLevelPRISMBuilder;
 import epmc.pomdp.model.ModelPRISM;
 import epmc.pomdp.model.PropertyPRISM;
 import epmc.pomdp.model.convert.UtilPrismConverter;
-import epmc.pomdp.options.OptionsPRISM;
+import epmc.pomdp.options.OptionsPOMDP;
 
-public final class AfterOptionsCreationPRISM implements AfterOptionsCreation {
+public final class AfterOptionsCreationPOMDP implements AfterOptionsCreation {
     public final static String IDENTIFIER = "after-options-creation-pomdp";
 
     @Override
@@ -47,19 +47,19 @@ public final class AfterOptionsCreationPRISM implements AfterOptionsCreation {
         assert options != null;
         OptionTypeMap<Class<?>> modelInputType = options.getType(OptionsModelChecker.MODEL_INPUT_TYPE);
         assert modelInputType != null;
-        modelInputType.put(ModelPOMDP.IDENTIFIER, ModelPOMDP.class);
+        modelInputType.put(ModelPRISM.IDENTIFIER, ModelPRISM.class);
         Map<String,Class<?>> propertyClasses = options.get(OptionsModelChecker.PROPERTY_CLASS);
         assert propertyClasses != null;
-        propertyClasses.put(PropertyPOMDP.IDENTIFIER, PropertyPOMDP.class);
+        propertyClasses.put(PropertyPRISM.IDENTIFIER, PropertyPRISM.class);
         OptionTypeBoolean typeBoolean = OptionTypeBoolean.getInstance();
-        options.addOption().setBundleName(OptionsPRISM.PRISM_OPTIONS)
-        .setIdentifier(OptionsPRISM.PRISM_FLATTEN)
+        options.addOption().setBundleName(OptionsPOMDP.POMDP_OPTIONS)
+        .setIdentifier(OptionsPOMDP.PRISM_FLATTEN)
         .setType(typeBoolean).setDefault(true)
         .setCommandLine().setGui().setWeb().build();
         
         Map<String,Class<? extends LowLevel.Builder>> map = 
                 options.get(OptionsModelChecker.LOW_LEVEL_ENGINE_CLASS);
-        map.put(LowLevelPOMDPBuilder.IDENTIFIER, LowLevelPOMDPBuilder.class);
+        map.put(LowLevelPRISMBuilder.IDENTIFIER, LowLevelPRISMBuilder.class);
         UtilPrismConverter.addOptions(options);
     }
 }

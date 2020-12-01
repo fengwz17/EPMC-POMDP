@@ -4,7 +4,7 @@ import epmc.plugin.BeforeModelCreation;
 import epmc.pomdp.value.OperatorEvaluatorPRISMPow;
 import epmc.value.operatorevaluator.SimpleEvaluatorFactory;
 
-public final class BeforeModelCreationPRISM implements BeforeModelCreation {
+public final class BeforeModelCreationPOMDP implements BeforeModelCreation {
     public final static String IDENTIFIER = "before-model-creation-pomdp";
 
     @Override

@@ -16,6 +16,7 @@ import epmc.graph.Semantics;
 import epmc.graph.SemanticsDTMCStandard;
 import epmc.graph.SemanticsCTMC;
 import epmc.graph.SemanticsMDP;
+import epmc.graph.SemanticsPOMDP;
 import epmc.graph.SemanticsSMG;
 import epmc.graph.SemanticsIMC;
 import epmc.graph.SemanticsMA;
@@ -27,6 +28,26 @@ import epmc.expression.standard.ExpressionLiteral;
 import epmc.prism.expression.PrismExpressionParser;
 import epmc.prism.options.OptionsPRISM;
 import epmc.options.Options;
+import epmc.pomdp.options.OptionsPOMDP;
+import epmc.prism.model.Alternative;
+import epmc.prism.model.Command;
+import epmc.prism.model.Formulas;
+import epmc.prism.model.ModelPRISM;
+import epmc.prism.model.Module;
+import epmc.prism.model.ModuleCommands;
+import epmc.prism.model.ModuleRename;
+import epmc.prism.model.PlayerDefinition;
+import epmc.prism.model.Reward;
+import epmc.prism.model.RewardStructure;
+import epmc.prism.model.StateReward;
+import epmc.prism.model.SystemAlphaParallel;
+import epmc.prism.model.SystemAsyncParallel;
+import epmc.prism.model.SystemDefinition;
+import epmc.prism.model.SystemHide;
+import epmc.prism.model.SystemModule;
+import epmc.prism.model.SystemRename;
+import epmc.prism.model.SystemRestrictedParallel;
+import epmc.prism.model.TransitionReward;
 import epmc.jani.model.type.JANIType;
 import epmc.jani.model.type.JANITypeInt;
 import epmc.jani.model.type.JANITypeReal;
@@ -69,14 +90,14 @@ final class POMDPParser {
 			return privParseModel(options);
 		} catch (ParseException pe) {
 			Token errorToken = getToken(1);
-			ensure(errorToken.kind != UNEXPECTED_CHAR, ProblemsPOMDP.POMDP_PARSER_UNEXPECTED_CHARACTER, newPositional(errorToken.endLine, errorToken.endColumn), errorToken.image);
-			ensure(false, ProblemsPOMDP.POMDP_PARSER_SYNTAX_ERROR, newPositional(errorToken.beginLine, errorToken.beginColumn), errorToken.toString());
+			ensure(errorToken.kind != UNEXPECTED_CHAR, ProblemsPOMDP.PRISM_PARSER_UNEXPECTED_CHARACTER, newPositional(errorToken.endLine, errorToken.endColumn), errorToken.image);
+			ensure(false, ProblemsPOMDP.PRISM_PARSER_SYNTAX_ERROR, newPositional(errorToken.beginLine, errorToken.beginColumn), errorToken.toString());
 			return null;
 		} catch (EPMCException e) {
 		   throw e;
 		}
 		 catch (Throwable t) {
-		   ensure(false, ProblemsPOMDP.POMDP_PARSER_GENERAL_ERROR, t, t);
+		   ensure(false, ProblemsPOMDP.PRISM_PARSER_GENERAL_ERROR, t, t);
 		   return null;
 		}
 	}
@@ -102,7 +123,7 @@ final class POMDPParser {
 		List<PlayerDefinition> players = new ArrayList<PlayerDefinition>();
 
 		Token t = actualParser(sd, model, init, formulae, modules, globalVariables, globalInitValues, rewards, players);
-		ensure(!modules.isEmpty(), ProblemsPOMDP.POMDP_PARSER_NO_MODULE, newPositional(t.beginLine, t.beginColumn));
+		ensure(!modules.isEmpty(), ProblemsPOMDP.PRISM_PARSER_NO_MODULE, newPositional(t.beginLine, t.beginColumn));
 		try {
 		  ModelPRISM result;
 		  if (this.model == null) {
@@ -125,7 +146,7 @@ final class POMDPParser {
 			throw ime;
 		}
 		// catch (Throwable thr) {
-		//	throw new EPMCRuntimeException(ProblemsPOMDP.POMDP_PARSER_INTERNAL_ERROR, thr);
+		//	throw new EPMCRuntimeException(ProblemsPOMDP.PRISM_PARSER_INTERNAL_ERROR, thr);
 		//}
 	}
 
@@ -193,11 +214,10 @@ TOKEN : // RESERVED KEYWORDS
 |	< MODULEEND : "endmodule" >
 |	< MULTIOBJECTIVE : "multi" >
 |	< NONDETERMINISTIC:	"nondeterministic" >
-|   < OBSERVABLESBEGIN: "observables" >
-|   < OBSERVABLESEND: "endobservables" >
 |	< P : "P" >
 |	< PMAX : "Pmax" >
 |	< PMIN : "Pmin" >
+|   < POMDP : "pomdp" >
 |	< POW : "pow" >
 |	< PROBABILISTIC : "probabilistic" >
 |	< PROB : "prob" >
@@ -208,7 +228,6 @@ TOKEN : // RESERVED KEYWORDS
 |	< REWARDSEND : "endrewards" >
 |	< RMAX : "Rmax" >
 |	< RMIN : "Rmin" >
-|   < POMDP : "pomdp" >
 |	< S : "S" >
 |	< SMAX : "Smax" >
 |	< SMIN : "Smin" >
@@ -402,38 +421,6 @@ private Semantics parseModelType()  :
 			t = <NONDETERMINISTIC>
 		) 
 		{ type = SemanticsPOMDP.POMDP; }
-	|
-		( 
-			t = <DTMC> 
-		| 
-			t = <PROBABILISTIC>
-		) 
-		{ type = SemanticsDTMCStandard.DTMC; }
-	|
-		( 
-			t = <CTMC> 
-		| 
-			t = <STOCHASTIC>
-		) 
-		{ type = SemanticsCTMC.CTMC; }
-	|
-		t = <CTMDP> 
-		{ type = SemanticsCTMDP.CTMDP; }
-//		{ type = null; }
-	|
-		t = <IMC> 
-		{ type = SemanticsIMC.IMC; }
-//		{ type = null; }
-	|
-		t = <MA> 
-		{ type = SemanticsMA.MA; }
-//		{ type = null; }
-	|
-		t = <SMG> 
-		{ type = SemanticsSMG.SMG; }
-	|
-		t = <PTA> 
-		{ type = SemanticsPTA.PTA; }
 	)
 	{ 
 		if (type != null) {
@@ -484,7 +471,7 @@ private void parseConstant(Formulas formulae)  :
 		)
 		{ 
 			String ids = id.toString();
-			ensure(!otherNames.contains(ids), ProblemsPOMDP.POMDP_PARSER_REPEATED_CONSTANT, newPositional(idt.beginLine, idt.beginColumn), ids);
+			ensure(!otherNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_CONSTANT, newPositional(idt.beginLine, idt.beginColumn), ids);
 			otherNames.add(ids);
 			formulae.addConstant(ids, value, type); 
 		}
@@ -537,7 +524,7 @@ private void parseLabel(Formulas formulae)  :
 	value = parseExpSemicolon()
 	<NESTING_SEMICOLON_SEMICOLON>
 	{
-	    ensure(!otherNames.contains(ids), ProblemsPOMDP.POMDP_PARSER_REPEATED_LABEL, newPositional(t.beginLine, t.beginColumn), ids);
+	    ensure(!otherNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_LABEL, newPositional(t.beginLine, t.beginColumn), ids);
 		otherNames.add(ids);
 		formulae.addLabel(ids, value); 
 	}
@@ -567,7 +554,7 @@ private void parseFormula(Formulas formulae)  :
 	<NESTING_SEMICOLON_SEMICOLON>
 	{ 
 		String ids = id.toString();
-		ensure(!otherNames.contains(ids), ProblemsPOMDP.POMDP_PARSER_REPEATED_FORMULA, newPositional(t.beginLine, t.beginColumn), ids);
+		ensure(!otherNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_FORMULA, newPositional(t.beginLine, t.beginColumn), ids);
 		otherNames.add(ids);
 		formulae.addFormula(id.toString(), value); 
 	}
@@ -611,7 +598,7 @@ private void parsePlayer(List<PlayerDefinition> players)  :
 	)*
 	<PLAYEREND>
 	{
-	    ensure(!playerNames.contains(ids), ProblemsPOMDP.POMDP_PARSER_REPEATED_PLAYER, newPositional(id.beginLine, id.beginColumn), ids);
+	    ensure(!playerNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_PLAYER, newPositional(id.beginLine, id.beginColumn), ids);
 		playerNames.add(ids);
 		players.add(new PlayerDefinition(ids, modules, actions, newPositional(playerBegin.beginLine, playerBegin.beginColumn))); 
 	}
@@ -646,7 +633,7 @@ private void parseModule(List<Module> modules)  :
 	)
 	<MODULEEND>
 	{
-	    ensure(!moduleNames.contains(ids), ProblemsPOMDP.POMDP_PARSER_REPEATED_MODULE, newPositional(t.beginLine, t.beginColumn), ids);
+	    ensure(!moduleNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_MODULE, newPositional(t.beginLine, t.beginColumn), ids);
 		moduleNames.add(ids);
 		modules.add(m); 
 	}
@@ -724,7 +711,7 @@ private void parseVariableDeclaration(Map<Expression, JANIType> variables, Map<E
 		<SEMICOLON>
 	)
 	{
-	    ensure(!otherNames.contains(ids), ProblemsPOMDP.POMDP_PARSER_REPEATED_VARIABLE, newPositional(t.beginLine, t.beginColumn), ids);
+	    ensure(!otherNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_VARIABLE, newPositional(t.beginLine, t.beginColumn), ids);
 		otherNames.add(ids);
 		variables.put(id, type);
 		if (initValue != null) {
@@ -796,7 +783,7 @@ private void parseRewards(List<RewardStructure> rewards)  :
 			id = new ExpressionIdentifierStandard.Builder()
 				.setName(ids)
 				.build();
-			ensure(!rewardsNames.contains(ids), ProblemsPOMDP.POMDP_PARSER_REPEATED_REWARD, newPositional(t.beginLine, t.beginColumn), ids);
+			ensure(!rewardsNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_REWARD, newPositional(t.beginLine, t.beginColumn), ids);
 		}
 	)?
 	{
@@ -869,7 +856,7 @@ private Expression parseInit()  :
 	<INIT_CLOSE>
 	{ 
 		initcount++;
-		ensure(initcount <= 1, ProblemsPOMDP.POMDP_PARSER_MULTIPLE_INIT, newPositional(t.beginLine, t.beginColumn));
+		ensure(initcount <= 1, ProblemsPOMDP.PRISM_PARSER_MULTIPLE_INIT, newPositional(t.beginLine, t.beginColumn));
 		return init;
 	}
 }
@@ -885,7 +872,7 @@ private SystemDefinition parseSystem()  :
 	<SYSTEMEND>
 	{ 
 		sdcount++;
-		ensure(sdcount <= 1, ProblemsPOMDP.POMDP_PARSER_MULTIPLE_SYSTEM, newPositional(t.beginLine, t.beginColumn));
+		ensure(sdcount <= 1, ProblemsPOMDP.PRISM_PARSER_MULTIPLE_SYSTEM, newPositional(t.beginLine, t.beginColumn));
 		return sd;
 	}
 }
@@ -1140,7 +1127,7 @@ private void parseDetUpdate(Expression weight, List<Alternative> updates) :
 		{ token_source.SwitchTo(UPDATE_ENV); }
 		<NESTING_PAR_RPAR>
 		{
-		    ensure(!effect.containsKey(id), ProblemsPOMDP.POMDP_PARSER_REPEATED_UPDATE, newPositional(t.beginLine, t.beginColumn), t);
+		    ensure(!effect.containsKey(id), ProblemsPOMDP.PRISM_PARSER_REPEATED_UPDATE, newPositional(t.beginLine, t.beginColumn), t);
 			effect.put(id, value); 
 		}
 		(
@@ -1155,7 +1142,7 @@ private void parseDetUpdate(Expression weight, List<Alternative> updates) :
 			value = parseExpParenth() 
 			{ token_source.SwitchTo(UPDATE_ENV); }
 			<NESTING_PAR_RPAR>
-			{   ensure(!effect.containsKey(id), ProblemsPOMDP.POMDP_PARSER_REPEATED_UPDATE, newPositional(t.beginLine, t.beginColumn), t.toString());
+			{   ensure(!effect.containsKey(id), ProblemsPOMDP.PRISM_PARSER_REPEATED_UPDATE, newPositional(t.beginLine, t.beginColumn), t.toString());
 				effect.put(id, value); 
 			}
 		)*
@@ -1201,7 +1188,7 @@ private Expression parseExpSemicolon()  :
 		{ exp.append(t.toString()); }
 	)*
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(exp.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(exp.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, exp.toString());
 	}
 }
@@ -1233,7 +1220,7 @@ private Expression parseExpParenth()  :
 		{ exp.append(t.toString()); }
 	)+
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(exp.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(exp.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, exp.toString());
 	}
 }
@@ -1265,7 +1252,7 @@ private Expression parseExpBrack()  :
 		{ exp.append(t.toString()); }
 	)+
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(exp.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(exp.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, exp.toString());
 	}
 }
@@ -1311,7 +1298,7 @@ private Expression parseExpColon(Token old)  :
 		{ exp.append(t.toString()); }
 	)*
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(exp.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(exp.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, exp.toString());
 	}
 }
@@ -1331,7 +1318,7 @@ private Expression parseExpInvariant()  :
 	    { content.append(t.toString()); }
 	)*
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(content.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(content.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, content.toString());
 	}
 }
@@ -1352,7 +1339,7 @@ private Expression parseExpInit()  :
 	    { content.append(t.toString()); }
 	)*
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(content.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(content.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, content.toString());
 	}
 }
@@ -1366,7 +1353,7 @@ private Expression parseExpSepinterval()  :
 	{ expressionToken = getToken(1); } 
 	content = <SEPINTERVAL_ARG>
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(content.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(content.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, content.toString());
 	}
 }
@@ -1380,7 +1367,7 @@ private Expression parseExpArrow()  :
 	{ expressionToken = getToken(1); } 
 	content = <ARROW_ARG>
 	{
-		POMDPExpressionParser ep = new POMDPExpressionParser(new StringReader(content.toString()));
+		PrismExpressionParser ep = new PrismExpressionParser(new StringReader(content.toString()));
 		return ep.parseExpression(part, expressionToken.beginLine, expressionToken.beginColumn, content.toString());
 	}
 }

@@ -18,18 +18,15 @@
 
  *****************************************************************************/
 
-package epmc.pomdp.model.convert;
+package epmc.pomdp.options;
 
 /**
- * Method to integrate rewards into JANI model converted from PRISM.
+ * Class collecting options used for PRISM-POMDP plugin.
  * 
- * @author Ernst Moritz Hahn
+ * @author Weizhi Feng
  */
-public enum RewardMethod {
-    /** Integrate reward assignments into existing automata. */
-    INTEGRATE,
-    /** Create new automaton to integrate rewards into model. */
-    EXTERNAL,
-    /** Do not convert rewards. */
-    NONE
+public enum OptionsPOMDP {
+    POMDP_OPTIONS,
+    CONTEXT_EXPRESSION_POMDP,
+    POMDP_FLATTEN,
 }
