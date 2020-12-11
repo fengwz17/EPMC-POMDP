@@ -10,7 +10,7 @@ import epmc.modelchecker.Model;
 import epmc.modelchecker.UtilModelChecker;
 import epmc.prism.model.ModelPRISM;
 
-public final class LowLevelQMCBuilder implements LowLevel.Builder {
+public final class LowLevelPOMDPBuilder implements LowLevel.Builder {
     public final static String IDENTIFIER = "pomdp";
     
     private Model model;

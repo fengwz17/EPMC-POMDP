@@ -10,7 +10,7 @@ import epmc.modelchecker.Model;
 import epmc.modelchecker.Property;
 import epmc.prism.model.ModelPRISM;
 
-import epmc.pomdp.error.ProblemsPRISM;
+import epmc.pomdp.error.ProblemsPOMDP;
 
 
 // TODO probably better to do multiplicity checking just here, not in parser
@@ -66,5 +66,4 @@ public final class ModelPOMDP implements Model, ModelJANIConverter {
         return modelPRISM;
     }
 }
-    }
     

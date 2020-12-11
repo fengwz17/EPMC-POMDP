@@ -29,8 +29,8 @@ import epmc.prism.expression.PrismExpressionParser;
 import epmc.prism.options.OptionsPRISM;
 import epmc.options.Options;
 import epmc.pomdp.options.OptionsPOMDP;
+import epmc.pomdp.model.ObsCommand;
 import epmc.prism.model.Alternative;
-import epmc.prism.model.Command;
 import epmc.prism.model.Formulas;
 import epmc.prism.model.ModelPRISM;
 import epmc.prism.model.Module;
@@ -116,13 +116,14 @@ final class POMDPParser {
 		Expression[] init = new Expression[1];
 		init[0] = null;
 		Formulas formulae = new Formulas();
+		Map<Expression, JANIType> observables = new HashMap<Expression, JANIType>();
 		List<Module> modules = new ArrayList<Module>();
 		Map<Expression, JANIType> globalVariables = new HashMap<Expression,JANIType>();
 		Map<Expression, Expression> globalInitValues = new HashMap<Expression,Expression>();
 		List<RewardStructure> rewards = new ArrayList<RewardStructure>();
 		List<PlayerDefinition> players = new ArrayList<PlayerDefinition>();
 
-		Token t = actualParser(sd, model, init, formulae, modules, globalVariables, globalInitValues, rewards, players);
+		Token t = actualParser(sd, model, init, formulae, observables, modules, globalVariables, globalInitValues, rewards, players);
 		ensure(!modules.isEmpty(), ProblemsPOMDP.PRISM_PARSER_NO_MODULE, newPositional(t.beginLine, t.beginColumn));
 		try {
 		  ModelPRISM result;
@@ -133,6 +134,7 @@ final class POMDPParser {
 	      }
 			result.build(new ModelPRISM.Builder()
 			  .setSemantics(model[0])
+			  .setObservables(observables)
 			  .setModules(modules)
 			  .setInitialStates(init[0])
 			  .setGlobalVariables(globalVariables)
@@ -213,7 +215,9 @@ TOKEN : // RESERVED KEYWORDS
 |	< MODULEBEGIN : "module" >
 |	< MODULEEND : "endmodule" >
 |	< MULTIOBJECTIVE : "multi" >
-|	< NONDETERMINISTIC:	"nondeterministic" >
+|	< NONDETERMINISTIC :	"nondeterministic" >
+|   < OBSERVABLESBEGIN : "observables" >
+|   < OBSERVABLESEND : "endobservables" >
 |	< P : "P" >
 |	< PMAX : "Pmax" >
 |	< PMIN : "Pmin" >
@@ -378,7 +382,7 @@ TOKEN :
 }
 
 
-private Token actualParser(SystemDefinition[] sd, Semantics[] model, Expression[] init, Formulas formulae, List<Module> modules, Map<Expression, JANIType> globalVariables, Map<Expression, Expression> globalInitValues, List<RewardStructure> rewards, List<PlayerDefinition> players)  :
+private Token actualParser(SystemDefinition[] sd, Semantics[] model, Expression[] init, Formulas formulae, List<Observable> observables, List<Module> modules, Map<Expression, JANIType> globalVariables, Map<Expression, Expression> globalInitValues, List<RewardStructure> rewards, List<PlayerDefinition> players)  :
 {
 	Token t;
 }
@@ -387,6 +391,8 @@ private Token actualParser(SystemDefinition[] sd, Semantics[] model, Expression[
 		model[0] = parseModelType() 
 	|
 		parseConstant(formulae)
+    |
+        parseObservables(observables)
 	|
 		parseLabel(formulae)
 	|
@@ -414,16 +420,10 @@ private Semantics parseModelType()  :
 	Token t;
 }
 {
-	(
-		( 
-			t = <POMDP> 
-		| 
-			t = <NONDETERMINISTIC>
-		) 
-		{ type = SemanticsPOMDP.POMDP; }
-	)
-	{ 
-		if (type != null) {
+	t = <POMDP> 
+	{
+        type = SemanticsPOMDP.POMDP;
+	    if (type != null) {
 			modelcount++;
 			ensure(modelcount <= 1, ProblemsPOMDP.POMDP_PARSER_MULTIPLE_TYPE, newPositional(t.beginLine, t.beginColumn));
 		}
@@ -476,6 +476,17 @@ private void parseConstant(Formulas formulae)  :
 			formulae.addConstant(ids, value, type); 
 		}
 	)
+}
+
+private void parseObservables(List<Observable> observables)  :
+{
+}
+{
+    <OBSERVABLESBEGIN>
+    (
+        parseObservableDeclaration(observables)
+    )*
+    <OBSERVABLESEND>
 }
 
 
@@ -687,37 +698,63 @@ private void parseModuleContent(Map<Expression,JANIType> variables, Map<Expressi
 
 private void parseVariableDeclaration(Map<Expression, JANIType> variables, Map<Expression, Expression> initValues)  :
 {
-	Expression id;
-	JANIType type;
-	Expression initValue = null;
-	Token t;
-	String ids;
+    Expression id;
+    JANIType type;
+    Expression initValue = null;
+    Token t;
+    String ids;
 }
 {
-	t = <IDENTIFIER>
-	{ 
-		ids = t.toString();
-		id = new ExpressionIdentifierStandard.Builder()
-			.setName(ids)
-			.build();
-	}
-	<COLON>
-	type = parseVariable()
-	(
-		<INIT>
-		initValue = parseExpSemicolon()
-		<NESTING_SEMICOLON_SEMICOLON>
-	|
-		<SEMICOLON>
-	)
-	{
-	    ensure(!otherNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_VARIABLE, newPositional(t.beginLine, t.beginColumn), ids);
-		otherNames.add(ids);
-		variables.put(id, type);
-		if (initValue != null) {
-			initValues.put(id, initValue);
-		}
-	}
+    t = <IDENTIFIER>
+    { 
+        ids = t.toString();
+        id = new ExpressionIdentifierStandard.Builder()
+            .setName(ids)
+            .build();
+    }
+    <COLON>
+    type = parseVariable()
+    (
+        <INIT>
+        initValue = parseExpSemicolon()
+        <NESTING_SEMICOLON_SEMICOLON>
+    |
+        <SEMICOLON>
+    )
+    {
+        ensure(!otherNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_VARIABLE, newPositional(t.beginLine, t.beginColumn), ids);
+        otherNames.add(ids);
+        variables.put(id, type);
+        if (initValue != null) {
+            initValues.put(id, initValue);
+        }
+    }
+}
+
+private void parseObservableDeclaration(Map<Expression, JANIType> observables)  :
+{
+    Expression id;
+    JANIType type;
+    Expression initValue = null;
+    Token t;
+    String ids;
+}
+{
+    t = <IDENTIFIER>
+    { 
+        ids = t.toString();
+        id = new ExpressionIdentifierStandard.Builder()
+            .setName(ids)
+            .build();
+    }
+    <COLON>
+    type = parseVariable()
+    <SEMICOLON>
+    {
+        ensure(!otherNames.contains(ids), ProblemsPOMDP.PRISM_PARSER_REPEATED_VARIABLE, newPositional(t.beginLine, t.beginColumn), ids);
+        otherNames.add(ids);
+        observables.put(id, type);
+    }
 }
 
 private JANIType parseVariable()  :
@@ -1024,6 +1061,7 @@ private Command parseGuardedCommandDeclaration() :
 	Expression identifier = null;
 	Expression guard;
 	List<Alternative> updates;
+	List<Alternative> observables = null;
 }
 {
 	<LBRACKET>
@@ -1048,13 +1086,17 @@ private Command parseGuardedCommandDeclaration() :
 	guard = parseCondition()
 	<ARROW_ARROW>
 	updates = parseUpdate()
+	(
+		<LCURL>
+		observables = parseUpdate()
+		<RCURL>	)?
 	{ token_source.SwitchTo(DEFAULT); }
 	(
 		<UPDATE_SEMICOLON>
 	|
 		<SEMICOLON>
 	)
-	{ return new Command(identifier, guard, updates, null); }
+	{ return new ObsCommand(identifier, guard, updates, observables, null); }
 }
 
 private List<Alternative> parseUpdate() : 

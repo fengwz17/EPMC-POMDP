@@ -1,7 +1,7 @@
 /ParseException.java
-/PrismParser.java
-/PrismParserConstants.java
-/PrismParserTokenManager.java
+/POMDPParser.java
+/POMDPParserConstants.java
+/POMDPParserTokenManager.java
 /SimpleCharStream.java
 /Token.java
 /TokenMgrError.java
