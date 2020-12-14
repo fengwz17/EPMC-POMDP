@@ -28,3 +28,15 @@ EPMC-POMDP Project daily progress
 2、不知道如何方便的进行调试：
 
 目前感觉应该在distribution下添加一个pomdp/build.sh，编译带有pomdp扩展的epmc-pomdp.jar，然后用其跑pomdp-prism格式的文件，但是感觉每次运行build.sh都需要很长时间进行编译，比较麻烦..
+
+### 12.14 ePMC-POMDP计划
+
+主要任务：和Andrea一起在ePMC上把POMDP的plugin开发出来。
+
+主要分这几步走：
+
+1、	fix一些编译的问题，让POMDPParser能够编译成功，从而读入POMDP-PRISM文件。
+
+2、	获得POMDP-PRISM文件中的信息：通过打印state、action、observable、transition command等方式测试读入信息的获取。
+
+3、	通过读入的模型信息，实现PBVI算法，生成policy。
