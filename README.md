@@ -47,19 +47,19 @@ EPMC-POMDP Project daily progress
 
 PTAs or POMDPs;
 
-Can we refine the code ([prism.py](https://github.com/liyi-david/pyconnectors/blob/master/semantics/STAr/prism.py)) to make it support POMDP?
+Can we refine the code ([prism.py](https://github.com/liyi-david/pyconnectors/blob/master/semantics/STAr/prism.py)) to make it support POMDPs?
 
 ### Some questions
 
 Some questions from Andrea about the generated prism-file:
 
-1) number of states/transitions in the explicit model;
+1） number of states/transitions in the explicit model;
 
-2) single reward structure;
+2） single reward structure;
 
-3) single module;
+3） single module;
 
-4) each state has transitions with no equal label;
+4） each state has transitions with no equal label;
 
 I.e., s and t can both have transitions with label/action b;
 
