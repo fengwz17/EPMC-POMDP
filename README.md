@@ -40,3 +40,30 @@ EPMC-POMDP Project daily progress
 2、	获得POMDP-PRISM文件中的信息：通过打印state、action、observable、transition command等方式测试读入信息的获取。
 
 3、	通过读入的模型信息，实现PBVI算法，生成policy。
+
+### 12.16 Discussion with Xiyue
+
+#### About the model
+
+PTAs or POMDPs;
+
+Can we refine the code ([prism.py](https://github.com/liyi-david/pyconnectors/blob/master/semantics/STAr/prism.py)) to make it support POMDP?
+
+#### Some questions
+
+Some questions from Andrea about the generated prism-file:
+
+1) number of states/transitions in the explicit model;
+
+2) single reward structure;
+
+3) single module;
+
+4) each state has transitions with no equal label;
+
+I.e., s and t can both have transitions with label/action b;
+
+S can have transitions with label b and c;
+
+But s can not have two transitions both with label b.
+
