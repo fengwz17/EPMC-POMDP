@@ -18,19 +18,35 @@
 
  *****************************************************************************/
 
-package epmc.pomdp.operator;
+package epmc.pomdp.model;
 
-import epmc.operator.Operator;
+import java.util.Map;
 
-/**
- * Operator "pow" of PRISM.
- * This operator is different from the one of the JANI language:
- * In this version, if both operands are integers, then the result type is an
- * integer too. In the JANI version however, the result is a real number in
- * any case.
- * 
- * @author Ernst Moritz Hahn
- */
-public enum OperatorPRISMPow implements Operator {
-    PRISM_POW
+import epmc.error.Positional;
+import epmc.expression.Expression;
+
+//Notice: objects of this interface are immutable by purpose.
+//Do not modify the interface to make them mutable.
+public interface Reward {
+    Positional getPositional();
+
+    default boolean isStateReward() {
+        return this instanceof StateReward;
+    }
+
+    default StateReward asStateReward() {
+        assert isStateReward();
+        return (StateReward) this;
+    }
+
+    default boolean isTransitionReward() {
+        return this instanceof TransitionReward;
+    }
+
+    default TransitionReward asTransitionReward() {
+        assert isTransitionReward();
+        return (TransitionReward) this;
+    }
+
+    Reward replace(Map<Expression,Expression> map);
 }
