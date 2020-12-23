@@ -106,7 +106,13 @@ public final class ModuleCommands implements Module {
         this.initValues = new HashMap<>();
         this.variables.putAll(variables);
         this.commands.addAll(commands);
-        this.observations.addAll(observations);
+        if (observations != null) {
+            for (Observation observation: observations) {
+                if (observation != null) {
+                    this.observations.add(observation);
+                }
+            }
+        }
         this.initValues.putAll(initValues);
     }
 

@@ -59,11 +59,23 @@ Some questions from Andrea about the generated prism-file:
 
 3） single module;
 
-4） each state has transitions with no equal label;
+4） each state has transitions with no equal label:
 
 I.e., s and t can both have transitions with label/action b;
 
 S can have transitions with label b and c;
 
 But s can not have two transitions both with label b.
+
+## 12.17 Discussion with Xiyue
+
+REO is used to model the property of data transition, e.g., synchronization and asynchronization. 
+
+The detailed flight state transition behavior (each aircraft's actions) will be abstracted and hard to model.
+
+So just use our own pomdp-prism file as the input of ePMC. 
+
+### Works for now:
+
+Implementing the PBVI algorithm. (I will try to implement it as "solver" in this repository at first, then add it to ePMC POMDP-Plugin.)
 

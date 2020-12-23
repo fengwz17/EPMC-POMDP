@@ -62,7 +62,7 @@ import epmc.pomdp.error.ProblemsPOMDP;
 import epmc.pomdp.messages.MessagesPOMDP;
 
 // import epmc.prism.error.ProblemsPRISM;
-// import epmc.prism.messages.MessagesPRISM;
+import epmc.prism.messages.MessagesPRISM;
 // import epmc.prism.model.Module;
 // import epmc.prism.model.*;
 import epmc.prism.options.OptionsPRISM;
@@ -1096,13 +1096,13 @@ public final class ModelPOMDP implements ModelJANIConverter {
         for (InputStream input : inputs) {
             assert input != null;
         }
-        getLog().send(MessagesPOMDP.START_PARSING);
+        getLog().send(MessagesPRISM.START_PARSING);
         ensure(inputs.length == 1, ProblemsPOMDP.POMDP_ONE_MODEL_FILE, inputs.length);
         POMDPParser parser = new POMDPParser(inputs[0]);    
         parser.setPart(part);
         parser.setModel(this);
         parser.parseModel();
-        getLog().send(MessagesPOMDP.DONE_PARSING);
+        getLog().send(MessagesPRISM.DONE_PARSING);
     }
 
     @Override

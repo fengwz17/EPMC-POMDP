@@ -17,9 +17,13 @@ pomdp
 const int detectRange = 10 * 10;
 const int NMAC = 3 * 3;
 
+formula disLeft = pow((x2 - (x1 - 1)),2) + pow((y2 - y1),2);
+formula disRight = pow((x2 - (x1 + 1)),2) + pow((y2 - y1),2);
+formula disGoAhead = pow((x2 - x1),2) + pow((y2 - (y1 + 1)),2);
+
 // can observe the direction of intruder relative to own aircraft.
 observables
-	o : [0.. 2] init 0;
+	o : [0.. 2];
 endobservables
 
 // assume the heading of own aircraft is always in the positive y-axis direction
@@ -69,11 +73,9 @@ module own
 
 	x1 : [-10.. 10] init 0;
 	y1 : [0.. 30] init 0;
-	o : [0.. 2] init 0;
+	// o : [0.. 2] init 0;
 
-	formula disLeft = (x2 - (x1 - 1))^2 + (y2 - y1)^2;
-	formula disRight = (x2 - (x1 + 1))^2 + (y2 - y1)^2;
-	formula disGoAhead = (x2 - x1)^2 + (y2 - (y1 + 1))^2;
+	
 
 	// moving: turn left, turn right and go ahead
 	// state transition probablity: Pr((x1' = x1 -1, y1' = y1) | (x1, y1), turnLeft) = 1, others are the same;
@@ -85,19 +87,19 @@ module own
 	// dis > 100        0.1                0.1                    0.8
 
 	// turn left and observe left, right, no-detection
-	[turnLeft] -10 < x1 <= 10 & disLeft <= detectRange & x2 <= x1 - 1 ->  1 : (x1' = x1 - 1) & (y1' = y1) & (0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0));
-	[turnLeft] -10 < x1 <= 10 & disLeft <= detectRange & x2 > x1 - 1 -> 1 : (x1' = x1 - 1) & (y1' = y1) & (0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0));
-	[turnLeft] -10 < x1 <= 10 & disLeft > detectRange -> 1: (x1' = x1 - 1) & (y1' = y1) & (0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0));
+	[turnLeft] -10 < x1 <= 10 & disLeft <= detectRange & x2 <= x1 - 1 ->  1 : (x1' = x1 - 1) & (y1' = y1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnLeft] -10 < x1 <= 10 & disLeft <= detectRange & x2 > x1 - 1 -> 1 : (x1' = x1 - 1) & (y1' = y1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnLeft] -10 < x1 <= 10 & disLeft > detectRange -> 1: (x1' = x1 - 1) & (y1' = y1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
 
 	// turn right
-	[turnRight] -10 <= x1 < 10 & disRight <= detectRange & x2 <= x1 -> 1: (x1' = x1 + 1) & (y1' = y1) & (0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0));
-	[turnRight] -10 <= x1 < 10 & disRight <= detectRange & x2 > x1 -> 1: (x1' = x1 + 1) & (y1' = y1) & (0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0));
-	[turnRight] -10 <= x1 < 10 & disRight > detectRange -> 1: (x1' = x1 + 1) & (y1' = y1) & (0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0));
+	[turnRight] -10 <= x1 < 10 & disRight <= detectRange & x2 <= x1 -> 1: (x1' = x1 + 1) & (y1' = y1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnRight] -10 <= x1 < 10 & disRight <= detectRange & x2 > x1 -> 1: (x1' = x1 + 1) & (y1' = y1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnRight] -10 <= x1 < 10 & disRight > detectRange -> 1: (x1' = x1 + 1) & (y1' = y1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
 
 	// goAhead
-	[goAhead] -10 <= x1 < 10 & disGoAhead <= detectRange & x2 <= x1 -> 1: (x1' = x1) & (y1' = y1 + 1) & (0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0));
-	[goAhead] -10 <= x1 < 10 & disGoAhead <= detectRange & x2 > x1 -> 1: (x1' = x1) & (y1' = y1 + 1) & (0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0));
-	[goAhead] -10 <= x1 < 10 & disGoAhead > detectRange -> 1: (x1' = x1) & (y1' = y1 + 1) & (0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0));
+	[goAhead] -10 <= x1 < 10 & disGoAhead <= detectRange & x2 <= x1 -> 1: (x1' = x1) & (y1' = y1 + 1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
+	[goAhead] -10 <= x1 < 10 & disGoAhead <= detectRange & x2 > x1 -> 1: (x1' = x1) & (y1' = y1 + 1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
+	[goAhead] -10 <= x1 < 10 & disGoAhead > detectRange -> 1: (x1' = x1) & (y1' = y1 + 1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
 																												
 
 	// reach the target
@@ -105,14 +107,11 @@ module own
 
 endmodule
 
-	
-endmodule
-
 // reward 
 // [action] guard : reward;
 rewards
 
-	(x1 - x2)^2 + (y1 - y2)^2 <= NMAC : -1000000;
+	pow((x1 - x2),2) + pow((y1 - y2),2) <= NMAC : -1000000;
 
 	// [done] true : 1000; 
 	x1 = 0 & y1 = 30 : 1000;
@@ -122,3 +121,7 @@ rewards
 	[goAhead] !(x1 = 0 & y1 = 30) : 0;  
 
 endrewards
+
+
+
+

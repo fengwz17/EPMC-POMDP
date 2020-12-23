@@ -323,6 +323,8 @@ TOKEN : // RESERVED KEYWORDS
 <UPDATE_ENV > TOKEN : {
 	< UPDATE_TRUE : "true" >
 |	< UPDATE_LPAR : "(" >
+|   < UPDATE_LCURL : "{" >
+|   < UPDATE_RCURL : "}" >
 |	< UPDATE_SEMICOLON : ";" > : DEFAULT
 |	< UPDATE_PRIME : "'" >
 |	< UPDATE_EQ : "=" > : NESTING_PAR
@@ -796,7 +798,6 @@ private void parseRewards(List<RewardStructure> rewards)  :
 {
 	<REWARDSBEGIN>
 	( 
-		LOOKAHEAD(<QUOTE>) 
 		<QUOTE>
 		t = <IDENTIFIER>
 		<QUOTE>
@@ -839,6 +840,24 @@ private void parseRewards(List<RewardStructure> rewards)  :
 			t = <FALSE>
 		|
 			t = <IDENTIFIER>
+		|
+			t = <CEIL>
+		|
+			t = <FLOOR>
+		|
+			t = <FUNCTION>
+		|
+			t = <LOG>
+		|
+			t = <MAX>
+		|
+			t = <MIN>
+		|
+			t = <MOD>
+		|
+			t = <POW>
+		|
+			t = <SQRT>
 		|
 			t = <LPAR>
 		|
@@ -1073,9 +1092,9 @@ private Pair<Command,Observation> parseGuardedCommandDeclaration() :
 	<ARROW_ARROW>
 	updates = parseUpdate()
 	(
-		<LCURL>
+		<UPDATE_LCURL>
 		observables = parseUpdate()
-		<RCURL>
+		<UPDATE_RCURL>
 		{ observation = new Observation(identifier, guard, observables, null); }
 	)?
 	{ token_source.SwitchTo(DEFAULT); }
@@ -1412,3 +1431,4 @@ private Expression ExpressionIdentifier()  :
 		.setName(literal.toString())
 		.build(); }
 }
+
