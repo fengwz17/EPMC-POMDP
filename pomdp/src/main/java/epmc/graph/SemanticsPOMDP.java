@@ -6,7 +6,7 @@ import epmc.graph.Semantics;
 /**
  * Semantics type for Partially Markov Decision (POMDP).
  */
-public enum SemanticsPOMDP implements SemanticsDiscreteTime, SemanticsNonDet, SemanticsStochastic  {
+public enum SemanticsPOMDP implements Semantics {
     /** Singleton element. */
     POMDP;
 
@@ -15,7 +15,9 @@ public enum SemanticsPOMDP implements SemanticsDiscreteTime, SemanticsNonDet, Se
      * 
      * @return whether this is Partially Markov Decision (POMDP)
      */
-    static boolean isPOMDP(Semantics semantics) {
+    public static boolean isPOMDP(Semantics semantics) {
         return semantics instanceof SemanticsPOMDP;
     }
+
+    
 }
