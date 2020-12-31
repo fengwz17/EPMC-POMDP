@@ -202,9 +202,6 @@ public final class PRISM2JANIConverter {
      * @param forExporting when set to true, the method transforms the JANI structures so to agree with the JANI-specification
      */
     public ModelJANI convert() {
-        System.out.println("..................................................");
-        System.out.println("Debu info: " + modelPOMDP.getSemantics().toString());
-        System.out.println("..................................................");
         modelJANI.setSemantics(modelPOMDP.getSemantics().toString());
         modelJANI.setVersion(JANI_VERSION);
 

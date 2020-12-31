@@ -83,7 +83,7 @@ final class RewardsConverter {
         this.forExporting = forExporting;
     }
 
-    void setPRISMModel(ModelPOMDP modelPomdp) {
+    void setPRISMModel(ModelPOMDP modelPOMDP) {
         this.modelPOMDP = modelPOMDP;
     }
 
@@ -99,7 +99,6 @@ final class RewardsConverter {
         assert modelJANI != null;
         assert modelPOMDP != null;
         assert silentAction != null;
-
         RewardMethod rewardMethod = Options.get().getEnum(OptionsPRISMConverter.PRISM_CONVERTER_REWARD_METHOD);
         switch (rewardMethod) {
         case INTEGRATE:

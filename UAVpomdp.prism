@@ -43,24 +43,27 @@ module intruder
 	// o : [0.. 2] init 0;
 
 	[turnLeft] x2 = -10 & y2 = 0 -> (x2' = x2 + 1);
-	[turnLeft] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
 	[turnRight] x2 = -10 & y2 = 0 -> (x2' = x2 + 1);
-	[turnRight] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
 	[goAhead] x2 = -10 & y2 = 0 -> (x2' = x2 + 1);
-	[goAhead] x2 = -10 & y2 = 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
 
-	[turnLeft] -10 < x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
-	[turnLeft] -10 < x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
-	[turnRight] -10 < x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
-	[turnRight] -10 < x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
-	[goAhead] -10 < x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
-	[goAhead] -10 < x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
+	[turnLeft] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
+	[turnRight] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
+	[goAhead] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
+
+	[turnLeft] x2 > -10 & x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
+	[turnRight] x2 > -10 & x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
+	[goAhead] x2 > -10 & x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
+
+	[turnLeft] x2 > -10 & x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
+	[turnRight] x2 > -10 & x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
+	[goAhead] x2 > -10 & x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
 
 	[turnLeft] x2 = 10 & y2 = 0 -> (x2' = x2 - 1);
-	[turnLeft] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
 	[turnRight] x2 = 10 & y2 = 0 -> (x2' = x2 - 1);
-	[turnRight] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
 	[goAhead] x2 = 10 & y2 = 0 -> (x2' = x2 - 1);
+
+	[turnLeft] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
+	[turnRight] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
 	[goAhead] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
 	
 endmodule
@@ -87,19 +90,19 @@ module own
 	// dis > 100        0.1                0.1                    0.8
 
 	// turn left and observe left, right, no-detection
-	[turnLeft] -10 < x1 <= 10 & disLeft <= detectRange & x2 <= x1 - 1 ->  1 : (x1' = x1 - 1) & (y1' = y1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
-	[turnLeft] -10 < x1 <= 10 & disLeft <= detectRange & x2 > x1 - 1 -> 1 : (x1' = x1 - 1) & (y1' = y1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
-	[turnLeft] -10 < x1 <= 10 & disLeft > detectRange -> 1: (x1' = x1 - 1) & (y1' = y1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
+	[turnLeft] x1 > -10 & disLeft <= detectRange & x2 <= x1 - 1 ->  1 : (x1' = x1 - 1) & (y1' = y1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnLeft] x1 > -10 & disLeft <= detectRange & x2 > x1 - 1 -> 1 : (x1' = x1 - 1) & (y1' = y1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnLeft] x1 > -10 & disLeft > detectRange -> 1: (x1' = x1 - 1) & (y1' = y1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
 
 	// turn right
-	[turnRight] -10 <= x1 < 10 & disRight <= detectRange & x2 <= x1 -> 1: (x1' = x1 + 1) & (y1' = y1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
-	[turnRight] -10 <= x1 < 10 & disRight <= detectRange & x2 > x1 -> 1: (x1' = x1 + 1) & (y1' = y1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
-	[turnRight] -10 <= x1 < 10 & disRight > detectRange -> 1: (x1' = x1 + 1) & (y1' = y1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
+	[turnRight] x1 < 10 & disRight <= detectRange & x2 <= x1 -> 1: (x1' = x1 + 1) & (y1' = y1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnRight] x1 < 10 & disRight <= detectRange & x2 > x1 -> 1: (x1' = x1 + 1) & (y1' = y1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
+	[turnRight] x1 < 10 & disRight > detectRange -> 1: (x1' = x1 + 1) & (y1' = y1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
 
 	// goAhead
-	[goAhead] -10 <= x1 < 10 & disGoAhead <= detectRange & x2 <= x1 -> 1: (x1' = x1) & (y1' = y1 + 1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
-	[goAhead] -10 <= x1 < 10 & disGoAhead <= detectRange & x2 > x1 -> 1: (x1' = x1) & (y1' = y1 + 1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
-	[goAhead] -10 <= x1 < 10 & disGoAhead > detectRange -> 1: (x1' = x1) & (y1' = y1 + 1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
+	[goAhead] y1 < 30 & disGoAhead <= detectRange & x2 <= x1 -> 1: (x1' = x1) & (y1' = y1 + 1) {0.8 : (o' = 1) + 0.1 : (o' = 2) + 0.1 : (o' = 0)};
+	[goAhead] y1 < 30 & disGoAhead <= detectRange & x2 > x1 -> 1: (x1' = x1) & (y1' = y1 + 1) {0.1 : (o' = 1) + 0.8 : (o' = 2) + 0.1 : (o' = 0)};
+	[goAhead] y1 < 30 & disGoAhead > detectRange -> 1: (x1' = x1) & (y1' = y1 + 1) {0.1 : (o' = 1) + 0.1 : (o' = 2) + 0.8 : (o' = 0)};
 																												
 
 	// reach the target
