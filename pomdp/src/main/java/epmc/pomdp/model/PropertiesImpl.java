@@ -48,8 +48,8 @@ import epmc.modelchecker.options.OptionsModelChecker;
 import epmc.options.Options;
 import epmc.options.UtilOptions;
 
-import epmc.pomdp.model.convert.PRISM2JANIConverter;
-// import epmc.prism.model.convert.PRISM2JANIConverter;
+import epmc.pomdp.model.convert.POMDP2JANIConverter;
+// import epmc.prism.model.convert.POMDP2JANIConverter;
 import epmc.value.Type;
 
 // TODO constants should not be stored here, but in a separate place in model
@@ -97,7 +97,7 @@ public final class PropertiesImpl implements Properties {
                 continue;
             }
             Expression parsed = UtilModelChecker.parseExpression(definition);
-            parsed = PRISM2JANIConverter.useOnlyNamedRewards(model, parsed);
+            parsed = POMDP2JANIConverter.useOnlyNamedRewards(model, parsed);
             properties.put(prop, parsed);
         }
         for (Entry<String,String> entry : rawProperties.getConstants().entrySet()) {

@@ -113,13 +113,14 @@ import epmc.value.TypeReal;
  * 
  * @author Weizhi Feng
  */
-public final class PRISM2JANIConverter {
+public final class POMDP2JANIConverter {
     private final static class ExpressionToTypeJANIConverter implements ExpressionToType {
         private final Map<Expression,Type> typeMap;
 
         private ExpressionToTypeJANIConverter(Variables variables) {
             assert variables != null;
             Map<Expression,Type> typeMap = new HashMap<>();
+            //int x = 10/0;
             for (Variable variable : variables) {
                 try {
                     typeMap.put(variable.getIdentifier(), variable.getType().toType());
@@ -180,7 +181,7 @@ public final class PRISM2JANIConverter {
      * 
      * @param modelPOMDP PRISM model to convert
      */
-    public PRISM2JANIConverter(ModelPOMDP modelPOMDP, boolean forExporting) {
+    public POMDP2JANIConverter(ModelPOMDP modelPOMDP, boolean forExporting) {
         assert modelPOMDP != null;
         this.modelPOMDP = modelPOMDP;
         modelJANI = new ModelJANI();
@@ -663,10 +664,12 @@ public final class PRISM2JANIConverter {
         Automata automata = new Automata();
         automata.setModel(modelJANI);
         int number = 0;
+        Integer locationId = 0;
         for (Module module : modelPOMDP.getModules()) {
+            System.out.println("DEBUG: add to automata");
             assert module.isCommands();
             ModuleCommands moduleCommands = (ModuleCommands) module;
-            Automaton automaton = moduleToAutomaton(moduleCommands, actions, globalVariables);
+            Automaton automaton = moduleToAutomaton(moduleCommands, actions, globalVariables, locationId);
             assert automaton != null;
             automaton.setNumber(number);
             automata.addAutomaton(automaton);
@@ -750,6 +753,7 @@ public final class PRISM2JANIConverter {
             ModuleCommands moduleCommands = (ModuleCommands) module;
             for (Command command : moduleCommands.getCommands()) {
                 String exprActName = ((ExpressionIdentifierStandard) command.getAction()).getName();
+                //System.out.println("DEBUG: Compute Action" + exprActName);
                 if (!result.containsKey(exprActName)) {
                     if (exprActName.equals(silentName) || exprActName.equals("")) {
                         result.addAction(silentAction);
@@ -774,7 +778,7 @@ public final class PRISM2JANIConverter {
      * @return automaton converted from module
      */
     private Automaton moduleToAutomaton(ModuleCommands module, Actions actions,
-            Variables globalVariables) {
+            Variables globalVariables, Integer locationId) {
         Automaton automaton = new Automaton();
         automaton.setModel(modelJANI);
         Rate rateOne = new Rate();
@@ -785,7 +789,8 @@ public final class PRISM2JANIConverter {
         edges.setModel(modelJANI);
         Location location = new Location();
         location.setModel(modelJANI);
-        location.setName(LOCATION_NAME);
+        location.setName(locationId.toString());
+        //location.setName(LOCATION_NAME);
         automaton.getLocations().add(location);
         if (module.getInvariants() != null
                 && !isTrue(module.getInvariants())) {

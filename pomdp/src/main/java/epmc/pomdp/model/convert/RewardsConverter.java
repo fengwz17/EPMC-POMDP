@@ -65,13 +65,13 @@ final class RewardsConverter {
     /** Name of automaton which will handle rewards. */
     private final static String REWARD_AUTOMATON = "reward_automaton";
     /** Name of the single location of the reward automaton. */
-    private final static String LOCATION_NAME = PRISM2JANIConverter.LOCATION_NAME;
+    private final static String LOCATION_NAME = POMDP2JANIConverter.LOCATION_NAME;
     /** Empty string. */
-    private final static String EMPTY = PRISM2JANIConverter.EMPTY;
+    private final static String EMPTY = POMDP2JANIConverter.EMPTY;
 
     /** PRISM model to be transformed to JANI model. */
     private ModelPOMDP modelPOMDP;
-    /** JANI model resulting from transformation from PRISM model. */
+    /** JANI model resulting from transformation from POMDP model. */
     private ModelJANI modelJANI;
     /** Action used as silent action. */
     private Action silentAction;
@@ -144,7 +144,7 @@ final class RewardsConverter {
         for (RewardStructure reward : modelPOMDP.getRewards()) {
             String name = reward.getName();
             if (forExporting) {
-                name = PRISM2JANIConverter.prefixRewardName(reward.getName());
+                name = POMDP2JANIConverter.prefixRewardName(reward.getName());
             }
             Variable variable = new Variable();
             variable.setModel(modelJANI);
@@ -231,7 +231,7 @@ final class RewardsConverter {
         for (RewardStructure structure : rewardStructures) {
             String rewardName = structure.getName(); 
             if (forExporting) {
-                rewardName = PRISM2JANIConverter.prefixRewardName(rewardName);
+                rewardName = POMDP2JANIConverter.prefixRewardName(rewardName);
             }
             Variable variable = rewards.get(rewardName);
             Expression assignedToVariable = null;
@@ -285,7 +285,7 @@ final class RewardsConverter {
             }
             String rewardName = structure.getName();
             if (forExporting) {
-                rewardName = PRISM2JANIConverter.prefixRewardName(rewardName);
+                rewardName = POMDP2JANIConverter.prefixRewardName(rewardName);
             }
             Variable rewardVariable = rewards.get(rewardName);
             AssignmentSimple locationRewardAssignment = new AssignmentSimple();

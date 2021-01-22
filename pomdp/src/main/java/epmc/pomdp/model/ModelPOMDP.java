@@ -73,7 +73,7 @@ import epmc.value.ValueInteger;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
 /**
- * PRISM model representation.
+ * POMDP model representation.
  * This file represents a PRISM high-level model. The semantical models which
  * can be represented are the ones originally from PRISM, plus Markov automata.
  * Quantum Markov chains are <emph>not</emph> handled by this model. Instead,
@@ -1112,7 +1112,7 @@ public final class ModelPOMDP implements ModelJANIConverter {
 
     @Override
     public ModelJANI toJANI(boolean forExporting) {
-        PRISM2JANIConverter converter = new PRISM2JANIConverter(this, forExporting);
+        POMDP2JANIConverter converter = new POMDP2JANIConverter(this, forExporting);
         return converter.convert();
     }
 

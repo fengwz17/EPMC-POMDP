@@ -3,6 +3,8 @@ package epmc.pomdp.model;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import javax.print.attribute.standard.Destination;
+
 import epmc.expression.standard.ExpressionIdentifier;
 import epmc.expression.standard.ExpressionIdentifierStandard;
 import epmc.expression.standard.RewardSpecification;
@@ -10,6 +12,7 @@ import epmc.expression.standard.RewardSpecificationImpl;
 import epmc.graph.LowLevel;
 import epmc.graph.LowLevel.Builder;
 import epmc.jani.model.ModelJANI;
+import epmc.jani.model.*;
 import epmc.modelchecker.Engine;
 import epmc.modelchecker.EngineDD;
 import epmc.modelchecker.EngineExplicit;
@@ -17,10 +20,10 @@ import epmc.modelchecker.EngineExplorer;
 import epmc.modelchecker.Model;
 import epmc.modelchecker.UtilModelChecker;
 
-import epmc.pomdp.model.convert.PRISM2JANIConverter;
-// import epmc.prism.model.convert.PRISM2JANIConverter;
-
-public final class LowLevelPRISMBuilder implements LowLevel.Builder {
+import epmc.pomdp.model.convert.POMDP2JANIConverter;
+// import epmc.prism.model.convert.POMDP2JANIConverter;
+// TODO: add the LowLevel definition of POMDP
+public final class LowLevelPOMDPBuilder implements LowLevel.Builder {
     public final static String IDENTIFIER = "prism";
     
     private Model model;
@@ -78,7 +81,7 @@ public final class LowLevelPRISMBuilder implements LowLevel.Builder {
     }
 
     public ModelJANI toJANI(boolean forExporting) {
-        PRISM2JANIConverter converter = new PRISM2JANIConverter((ModelPOMDP) model, forExporting);
+        POMDP2JANIConverter converter = new POMDP2JANIConverter((ModelPOMDP) model, forExporting);
         return converter.convert();
     }
 
@@ -90,9 +93,29 @@ public final class LowLevelPRISMBuilder implements LowLevel.Builder {
         graphProperties = fixProperties(graphProperties);
         nodeProperties = fixProperties(nodeProperties);
         edgeProperties = fixProperties(edgeProperties);
+
         if (engine instanceof EngineExplorer
                 || engine instanceof EngineExplicit) {
             ModelJANI jani = toJANI(false);
+
+            System.out.println("jani actions: " + jani.getActions());
+            System.out.println("jani observables: " + jani.getObservables());
+            for(Automaton auto : jani.getAutomata())
+            {
+                System.out.println("DEBUG: automaton");
+                int i = 0;
+                for(Edge e : auto.getEdges()){
+                    i++;
+                    for(epmc.jani.model.Destination d : e.getDestinations()){
+                        System.out.println("DEBUG: Edge " + i);
+                        System.out.println("DEBUG: edge: " + e.getLocation().getName() + ", " + e.getAction().getName()  + ", " + d.getLocation().getName());
+                        //+ ", " + e.getGuard().getExp().toString() + ", " + e.getRate().toString()
+                    }
+                }
+            }
+            
+            System.out.println("jani getGlobalVariables: " + jani.getGlobalVariables());
+
             return UtilModelChecker.buildLowLevel(jani, engine,
                     graphProperties, nodeProperties, edgeProperties);
         } else if (engine instanceof EngineDD){
