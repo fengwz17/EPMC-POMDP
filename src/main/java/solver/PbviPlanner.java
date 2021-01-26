@@ -1,4 +1,4 @@
-package epmc.pomdp.solver;
+package solver;
 
 import java.util.ArrayList;
 
@@ -65,7 +65,7 @@ public class PbviPlanner {
         if (b.getSize() != alpha.getSize())
         {
             System.err.println("b_size: " + b.getSize() + " and alpha_size: " + alpha.getSize() + " error dimension not equal.\n");
-            throw new Exception("Dimension error!");
+           //  throw new Exception("Dimension error!");
         }
         double result = 0;
         for (int i = 0; i < b.getSize(); i++)
@@ -155,7 +155,7 @@ public class PbviPlanner {
         if (a.getSize() != b.getSize())
         {
             System.err.println("The size of alpha vectors are not equal.\n");
-            throw new Exception("");
+            // throw new Exception("");
         }
         else
         {

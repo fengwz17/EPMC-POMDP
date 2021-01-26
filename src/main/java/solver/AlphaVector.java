@@ -1,4 +1,4 @@
-package epmc.pomdp.solver;
+package solver;
 
 import java.util.ArrayList;
 
