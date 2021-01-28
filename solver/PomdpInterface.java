@@ -8,8 +8,8 @@ public interface PomdpInterface {
     public int getSizeofActions();
     public int getSizeObservables();
     public ArrayList<Double> getInitBelief();
-    public Double transFunction(int sI, int aI, int nexSI);
-    public Double obsFunction(int oI, int nexSI, int aI);
+    public Double transFunction(int aI, int sI, int nexSI);
+    public Double obsFunction(int aI, int nexSI, int oI);
     public Double reward(int ai, int si);
 
 }

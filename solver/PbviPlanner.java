@@ -25,9 +25,9 @@ public class PbviPlanner {
             double probState = 0;
             for (int nSI = 0; nSI < alpha.getSize(); nSI++)
             {
-                probState += alpha.getIndex(nSI) * Pb.obsFunction(oI, nSI, aI) * Pb.transFunction(sI, aI, nSI);
+                probState += alpha.getIndex(nSI) * Pb.obsFunction(aI, nSI, oI) * Pb.transFunction(aI, sI, nSI);
             }
-            tmp.set(sI, probState);
+            tmp.add(probState);
         }
 
         for (int sI = 0; sI < alpha.getSize(); sI++)
@@ -44,18 +44,17 @@ public class PbviPlanner {
         ArrayList<AlphaVector> tmp = new ArrayList<AlphaVector>();
         ArrayList<ArrayList<AlphaVector>> tmptmp = new ArrayList<ArrayList<AlphaVector>>();
 
-        for (int aI = 0; aI < Pb.getSizeObservables
-        (); aI++)
+        for (int aI = 0; aI < Pb.getSizeObservables(); aI++)
         {
-            for (int alphaIndex = 0; alphaIndex < alphaVectors.size(); alphaIndex++)
+            for (int oI = 0; oI < Pb.getSizeObservables(); oI++)
             {
-                for (int oI = 0; oI < Pb.getSizeObservables(); oI++)
+                for (int alphaIndex = 0; alphaIndex < alphaVectors.size(); alphaIndex++)
                 {
-                    tmp.set(alphaIndex, updateAlphaAO(aI, alphaVectors.get(alphaIndex), oI, Pb));
-                    tmptmp.set(oI, tmp);
-                    AlphaAOVecs.set(aI, tmptmp);
+                    tmp.add(updateAlphaAO(aI, alphaVectors.get(alphaIndex), oI, Pb));
                 }
+                tmptmp.add(tmp);
             }
+            AlphaAOVecs.add(tmptmp);   
         }
         return AlphaAOVecs;
     }
@@ -89,6 +88,7 @@ public class PbviPlanner {
                 int selectedI = 0;
 
                 // for each alpha vector (alphaAO), select a best alpha index
+                System.out.println("SIZE: " + AlphaAOVecs.get(aI).get(oI).size());
                 for (int i = 0; i < AlphaAOVecs.get(aI).get(oI).size(); i++)
                 {
                     if (dot(b, AlphaAOVecs.get(aI).get(oI).get(i)) > maxRes)
@@ -97,19 +97,20 @@ public class PbviPlanner {
                         selectedI = i;
                     }
                 }
-                
+                System.out.println("MAXRES: " + maxRes);
+                System.out.println("selecID: " + selectedI);
                 // sum of argmax (b * alphaAO)
                 for (int sI = 0; sI < Pb.getSizeofStates(); sI++)
                 {
                     double tmp = AlphaAOVecs.get(aI).get(oI).get(selectedI).getIndex(sI);
                     double tmptmp = values.get(sI) + tmp;
-                    values.set(sI, tmptmp);
+                    values.add(tmptmp);
                 }
             } 
 
             for (int sI = 0; sI < Pb.getSizeofStates(); sI++)
             {
-                values.set(sI, rewards.get(sI) + gamma * values.get(sI));
+                values.add(rewards.get(sI) + gamma * values.get(sI));
             }
             AlphaVector alphaAB = new AlphaVector(values, aI);
             return alphaAB;
@@ -124,7 +125,7 @@ public class PbviPlanner {
             ArrayList<AlphaVector> vecAlpha = new ArrayList<AlphaVector>();
             for (int aI = 0; aI < Pb.getSizeofActions(); aI++)
             {
-                vecAlpha.set(aI, updateAlphaAB(aI, AlphaAOVecs, b, rewardVectors, gamma, Pb));
+                vecAlpha.add(updateAlphaAB(aI, AlphaAOVecs, b, rewardVectors, gamma, Pb));
                 double tmp = dot(b, vecAlpha.get(aI));
                 if (tmp > res)
                 {
@@ -227,7 +228,7 @@ public class PbviPlanner {
             double probNewSI = 0;
             for (int sI = 0; sI < Pb.getSizeofStates(); sI++)
             {
-                probNewSI += Pb.transFunction(sI, aI, newSI) * Pb.obsFunction(oI, newSI, aI) * b.get(sI);
+                probNewSI += Pb.transFunction(aI, sI, newSI) * Pb.obsFunction(aI, newSI, oI) * b.get(sI);
             }
             probOBA += probNewSI;
         }
@@ -244,10 +245,10 @@ public class PbviPlanner {
                 double probNewSI = 0;
                 for (int sI = 0; sI < Pb.getSizeofStates(); sI++)
                 {
-                    probNewSI += Pb.transFunction(sI, aI, newSI) * b.get(sI);
+                    probNewSI += Pb.transFunction(aI, sI, newSI) * b.get(sI);
                 }
-                double probNewSAO = (Pb.obsFunction(oI, newSI, aI) * probNewSI) / probOBA;
-                bAindexValue.set(newSI, probNewSAO);
+                double probNewSAO = (Pb.obsFunction(aI, newSI, oI) * probNewSI) / probOBA;
+                bAindexValue.add(probNewSAO);
             }
         }
         Belief bAO = new Belief(bAindexValue);
@@ -341,6 +342,7 @@ public class PbviPlanner {
 
     public void plan(ArrayList<AlphaVector> alphaVectors, ArrayList<Belief> beliefSet, int maxBP, ArrayList<ArrayList<Double>> rewardVectors, 
         Double gamma, int MAX_ITER_G, int MAX_ITER_I, Double err, PomdpInterface Pb) {
+    
         for (int i = 0; i < MAX_ITER_G; i++)
         {
             ArrayList<AlphaVector> tmpVec = alphaVectors;
@@ -349,7 +351,6 @@ public class PbviPlanner {
             if (checkConvergence(tmpVec, alphaVectors, err))
             {
                 System.err.println("Converged in improvement at iteration: " + i + "\n");
-                return;
             }
         }
     }
@@ -373,12 +374,14 @@ public class PbviPlanner {
         {
             for (aI = 0; aI < Pb.getSizeofActions(); aI++)
             {
-                if (Pb.reward(sI, aI) < Rmin)
+                // System.out.println("R: " + Pb.reward(aI, sI));
+                if (Pb.reward(aI, sI) < Rmin)
                 {
-                    Rmin = Pb.reward(sI, aI);
+                    Rmin = Pb.reward(aI, sI);
+                    System.out.println("Rmin: " + Rmin);
                 }
             }
-            alphaValues.set(sI, Rmin/(1-gamma));
+            alphaValues.add(Rmin/(1-gamma));
         }
         AlphaVector minAlpha = new AlphaVector(alphaValues, aI);
         v.add(minAlpha);
@@ -392,9 +395,9 @@ public class PbviPlanner {
             ArrayList<Double> rewardAI = new ArrayList<Double>();
             for (int sI = 0; sI < Pb.getSizeofStates(); sI++)
             {
-                rewardAI.set(sI, Pb.reward(sI, aI));
+                rewardAI.add(Pb.reward(aI, sI));
             }
-            rewardVectors.set(aI, rewardAI);
+            rewardVectors.add(rewardAI);
         }
         return rewardVectors;
     }

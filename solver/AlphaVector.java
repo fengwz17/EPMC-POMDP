@@ -34,11 +34,11 @@ class AlphaVector {
     public void printAlphaVector() {
         String out = "The action index in the alpha vector: ";
         out += this.actionIndex;
-        out += "<";
+        out += " < ";
         for (Double values : getValues()) {
             out += (values + " "); 
         }
-        out += ">";
+        out += " > ";
         System.out.println(out);
     }
 }

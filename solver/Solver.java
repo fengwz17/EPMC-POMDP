@@ -11,6 +11,7 @@ public class Solver {
         start = System.currentTimeMillis();
 
         PomdpInterface Pb = new Parser();
+        // System.out.println("R: " + Pb.reward(0,0));
         PbviPlanner PbviPlanner = new PbviPlanner(0.95, 50, 200, 50, Pb);
 
         System.out.println("...Initial Value Function...");
@@ -30,9 +31,8 @@ public class Solver {
         }
 
         end = System.currentTimeMillis();  
-        System.out.println("...End...")
+        System.out.println("...End...");
         System.out.println("start time:" + start+ "; end time:" + end+ "; Run Time:" + (end - start) + "(ms)");
     }
 
-    }
 }
