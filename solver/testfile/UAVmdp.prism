@@ -1,0 +1,92 @@
+// MDP model
+// UAV collision avoidance
+// discrete states
+// feng wz
+
+// state space (value of variable "(x, y)")
+// s = (x1, y1, x2, y2)
+// (x1, y1) is the position of own aircraft
+// (x2, y2) is the position of the intruder
+//  -10 <= x <= 10
+// 0 <= y <= 30
+// (0, 30) is the target
+
+mdp
+
+const int NMAC = 3 * 3;
+
+// intruder
+// [own action]: the action means own aircraft's action, the intruder and own aircraft move at the same time
+//      the intruder randomly takes an action from "go ahead", "turn left" and "turn right"
+//      own aircraft takes action as  [own action]
+// Markov chain: I think the intruder's transition is Markov chain because actually there is not "actions" for intruder. 
+module intruder
+
+	x2 : [-10..10] init 0;
+	y2 : [0.. 30] init 15; 
+	
+
+	[turnLeft] x2 = -10 & y2 = 0 -> (x2' = x2 + 1);
+	[turnRight] x2 = -10 & y2 = 0 -> (x2' = x2 + 1);
+	[goAhead] x2 = -10 & y2 = 0 -> (x2' = x2 + 1);
+
+	[turnLeft] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
+	[turnRight] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
+	[goAhead] x2 = -10 & y2 > 0 -> 1/2 : (x2' = x2 + 1) + 1/2 : (y2' = y2 - 1);
+
+	[turnLeft] x2 > -10 & x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
+	[turnRight] x2 > -10 & x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
+	[goAhead] x2 > -10 & x2 < 10 & y2 = 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (x2' = x2 + 1);
+
+	[turnLeft] x2 > -10 & x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
+	[turnRight] x2 > -10 & x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
+	[goAhead] x2 > -10 & x2 < 10 & y2 > 0 -> 1/3 : (x2' = x2 - 1) + 1/3 : (x2' = x2 + 1) + 1/3 : (y2' = y2 - 1);
+
+	[turnLeft] x2 = 10 & y2 = 0 -> (x2' = x2 - 1);
+	[turnRight] x2 = 10 & y2 = 0 -> (x2' = x2 - 1);
+	[goAhead] x2 = 10 & y2 = 0 -> (x2' = x2 - 1);
+
+	[turnLeft] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
+	[turnRight] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
+	[goAhead] x2 = 10 & y2 > 0 -> 1/2 : (x2' = x2 - 1) + 1/2 : (y2' = y2 - 1);
+	
+endmodule
+
+// own aircraft
+// [action] curr state guard -> next state distribution
+module own
+
+	x1 : [-10.. 10] init 0;
+	y1 : [0.. 30] init 0;
+
+	// moving: turn left, turn right and go ahead
+	// state transition probablity: Pr((x1' = x1 -1, y1' = y1) | (x1, y1), turnLeft) = 1, others are the same;
+
+	// turn left and observe left, right, no-detection
+	[turnLeft] x1 > -10 -> 1 : (x1' = x1 - 1) & (y1' = y1);
+
+	// turn right
+	[turnRight] x1 < 10 -> 1: (x1' = x1 + 1) & (y1' = y1);
+
+	// goAhead
+	[goAhead] y1 < 30 -> 1: (x1' = x1) & (y1' = y1 + 1);																												
+
+	// reach the target
+	[done] x1 = 0 & y1 = 30 -> true;
+
+endmodule
+
+// reward 
+// [action] guard : reward;
+rewards
+
+	pow((x1 - x2),2) + pow((y1 - y2),2) <= NMAC : -1000000;
+
+	// [done] true : 1000; 
+	x1 = 0 & y1 = 30 : 1000;
+
+	[turnLeft]  !(x1 = 0 & y1 = 30) : -1;
+	[turnRight]  !(x1 = 0 & y1 = 30) : -1;
+	[goAhead] !(x1 = 0 & y1 = 30) : 0;  
+
+endrewards

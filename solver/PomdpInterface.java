@@ -10,6 +10,6 @@ public interface PomdpInterface {
     public ArrayList<Double> getInitBelief();
     public Double transFunction(int sI, int aI, int nexSI);
     public Double obsFunction(int oI, int nexSI, int aI);
-    public Double reward(int sI, int aI);
+    public Double reward(int ai, int si);
 
 }

@@ -360,7 +360,7 @@ public class PbviPlanner {
     
     }
 
-    public   ArrayList<AlphaVector> getValueFunction() {
+    public ArrayList<AlphaVector> getValueFunction() {
         return this.alphaVectors;
     }
 

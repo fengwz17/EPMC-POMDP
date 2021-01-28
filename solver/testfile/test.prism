@@ -1,0 +1,22 @@
+// 1.23_test 
+// fwz
+
+pomdp
+
+observables
+    o : [0.. 1];
+endobservables
+
+module M
+
+    x : [0..1] init 0;
+
+    [action] x = 0 -> 0.8 : (x'=0) + 0.2 : (x'=1) {0.7 : (o'=0) + 0.3: (o' = 1)};
+
+endmodule
+
+rewards
+
+    x = 1 : 100;
+
+endrewards
