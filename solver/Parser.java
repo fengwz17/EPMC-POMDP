@@ -72,13 +72,13 @@ public class Parser implements PomdpInterface {
         //     System.out.println("state: " + States.get(i));
         // }
         
-        double b = 1/(States.size());
+        double b = 1.0/(States.size());
         ArrayList<Double> b0 = new ArrayList<Double>();
         for (int i = 0; i < States.size(); i++)
         {   
             b0.add(b);
         }
-        this.b0 = b0;
+        this.belief = b0;
 
         ArrayList<ArrayList<ArrayList<Double>>> T = new ArrayList<ArrayList<ArrayList<Double>>>();
         ArrayList<ArrayList<ArrayList<Double>>> O = new ArrayList<ArrayList<ArrayList<Double>>>();
@@ -681,7 +681,7 @@ public class Parser implements PomdpInterface {
 
     @Override
     public ArrayList<Double> getInitBelief() {
-        return this.b0;
+        return this.belief;
     };
 
     @Override
@@ -707,7 +707,7 @@ public class Parser implements PomdpInterface {
     private ArrayList<Integer> Observations;
     // private ArrayList<Integer> Variables;
     private ArrayList<HashMap<String, Integer>> States;
-    private ArrayList<Double> b0;
+    private ArrayList<Double> belief;
     private ArrayList<ArrayList<ArrayList<Double>>> Trans;
     private ArrayList<ArrayList<ArrayList<Double>>> Obs;
     private ArrayList<ArrayList<Double>> Rewards;

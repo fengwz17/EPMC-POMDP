@@ -4,24 +4,24 @@ import java.util.List;
 import java.util.ArrayList;
 
 class Belief {
-    private ArrayList<Double> states;
+    private ArrayList<Double> prob_states;
 
     public Belief(ArrayList<Double> b) {
-        this.states = b;
+        this.prob_states = b;
     }
 
     public ArrayList<Double> getBelief() {
-        return this.states;
+        return this.prob_states;
     }
 
     public long getSize() 
     {
-        return this.states.size();
+        return this.prob_states.size();
     }
 
     public double get(int i)
     {
-        return this.states.get(i);
+        return this.prob_states.get(i);
     }
 
     public void printBelief() {

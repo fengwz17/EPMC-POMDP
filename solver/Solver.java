@@ -12,7 +12,10 @@ public class Solver {
 
         PomdpInterface Pb = new Parser();
         // System.out.println("R: " + Pb.reward(0,0));
-        PbviPlanner PbviPlanner = new PbviPlanner(0.95, 50, 200, 50, Pb);
+        // Belief b0 = new Belief(Pb.getInitBelief());
+        // b0.printBelief();
+        
+        PbviPlanner PbviPlanner = new PbviPlanner(0.95, 100, 200, 50, Pb);
 
         System.out.println("...Initial Value Function...");
         for (AlphaVector AlphaVector : PbviPlanner.getValueFunction())
