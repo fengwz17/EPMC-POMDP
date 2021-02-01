@@ -20,42 +20,70 @@ public class PbviPlanner {
 
     public AlphaVector updateAlphaAO(int aI, AlphaVector alpha, int oI, PomdpInterface Pb) {
         ArrayList<Double> tmp = new ArrayList<Double>();
+        AlphaVector tmpAlpha = new AlphaVector();
+        tmpAlpha.setActionIndex(alpha.getActionIndex());
+        for (int i = 0; i < alpha.getValues().size(); i++)
+        {
+            tmpAlpha.addValue(alpha.getValues().get(i));
+        } 
         for (int sI = 0; sI < alpha.getSize(); sI++)
         {
             double probState = 0;
             for (int nSI = 0; nSI < alpha.getSize(); nSI++)
             {
+                // System.out.println(alpha.getIndex(nSI) + " " + Pb.obsFunction(aI, nSI, oI) + " " + Pb.transFunction(aI, sI, nSI));
                 probState += alpha.getIndex(nSI) * Pb.obsFunction(aI, nSI, oI) * Pb.transFunction(aI, sI, nSI);
+                // System.out.println("prob: " + probState);
             }
             tmp.add(probState);
+            // System.out.println("tmp: " + tmp.get(sI));
         }
 
         for (int sI = 0; sI < alpha.getSize(); sI++)
         {
-            alpha.changeValue(sI, tmp.get(sI));
+            // System.out.println("tmp: " + tmp.get(sI));
+            tmpAlpha.changeValue(sI, tmp.get(sI));
         }
 
-        return alpha;
+        return tmpAlpha;
     }
 
     // compute all the alpha_a_o values and store them to use in different belief point
     public ArrayList<ArrayList<ArrayList<AlphaVector>>> computeAllAlphaAOValues(ArrayList<AlphaVector> alphaVectors, PomdpInterface Pb){
         ArrayList<ArrayList<ArrayList<AlphaVector>>> AlphaAOVecs = new ArrayList<ArrayList<ArrayList<AlphaVector>>>();
-        
-        for (int aI = 0; aI < Pb.getSizeObservables(); aI++)
+        // System.out.println("........");
+        // alphaVectors.get(0).printAlphaVector();
+        // System.out.println("........");
+        for (int aI = 0; aI < Pb.getSizeofActions(); aI++)
         {
             ArrayList<ArrayList<AlphaVector>> tmptmp = new ArrayList<ArrayList<AlphaVector>>();
             for (int oI = 0; oI < Pb.getSizeObservables(); oI++)
             {
-                // System.out.println("compute: " + alphaVectors.size());
-                ArrayList<AlphaVector> tmp = new ArrayList<AlphaVector>();
-                for (int alphaIndex = 0; alphaIndex < alphaVectors.size(); alphaIndex++)
-                {
-                    tmp.add(updateAlphaAO(aI, alphaVectors.get(alphaIndex), oI, Pb));
-                }
+                ArrayList<AlphaVector> tmp = new ArrayList<AlphaVector>(alphaVectors);
                 tmptmp.add(tmp);
             }
-            AlphaAOVecs.add(tmptmp);   
+            AlphaAOVecs.add(tmptmp);
+        }
+
+        // System.out.println("<<<<<<<<");
+        // alphaVectors.get(0).printAlphaVector();
+        // System.out.println(">>>>>>>>");
+
+        for (int aI = 0; aI < Pb.getSizeofActions(); aI++)
+        {
+            // System.out.println("compute: " + alphaVectors.size());
+            for (int alphaIndex = 0; alphaIndex < alphaVectors.size(); alphaIndex++)
+            {
+                for (int oI = 0; oI < Pb.getSizeObservables(); oI++)
+                {
+                    AlphaVector tmpAlpha = updateAlphaAO(aI, alphaVectors.get(alphaIndex), oI, Pb);
+                    // System.out.println("+++++++");
+                    // alphaVectors.get(0).printAlphaVector();
+                    // System.out.println("+++++++");
+                    // tmpAlpha.printAlphaVector();
+                    AlphaAOVecs.get(aI).get(oI).set(alphaIndex, tmpAlpha);
+                }
+            }   
         }
         return AlphaAOVecs;
     }
@@ -111,14 +139,14 @@ public class PbviPlanner {
                 for (int sI = 0; sI < Pb.getSizeofStates(); sI++)
                 {
                     double tmp = AlphaAOVecs.get(aI).get(oI).get(selectedI).getIndex(sI);
+                    // System.out.println(AlphaAOVecs.get(aI).get(oI).get(selectedI).getIndex(sI));
                     values.set(sI, values.get(sI) + tmp);
-                    // System.out.print(" values[sI]: " + values.get(sI));
                 }
             } 
 
             for (int sI = 0; sI < Pb.getSizeofStates(); sI++)
             {
-                values.set(sI, rewards.get(sI) + gamma * values.get(sI));
+                values.set(sI, rewards.get(sI) + gamma * values.get(sI));            
             }
             AlphaVector alphaAB = new AlphaVector(values, aI);
             return alphaAB;
@@ -151,11 +179,17 @@ public class PbviPlanner {
         }
         for (int i = 0; i < alphaVectors.size(); i++)
         {
+            // System.out.println("............check.........");
+            // alphaVectors.get(i).printAlphaVector();
+            // alpha.printAlphaVector();
+            // System.out.println("............check.........");
             if (alphaVectors.get(i).equal(alpha))
             {
+                // System.out.println("<<<<<<<<<<<<< true >>>>>>>>>>>>>>>>>>");
                 return true;
             }
         }
+        // System.out.println("<<<<<<<<<<<<< false >>>>>>>>>>>>>>>>>>");
         return false;
     }
 
@@ -202,8 +236,13 @@ public class PbviPlanner {
         double gamma, int MAX_ITER_IMP, PomdpInterface Pb) {
             Double err = Double.MIN_VALUE;
             // System.out.println("err: " + err);
-            ArrayList<AlphaVector> tmpVectors = alphaVectors;
-            // alphaVectors.clear();
+            ArrayList<AlphaVector> tmpVectors = new ArrayList<AlphaVector>(alphaVectors);
+            // for (int i = 0; i < alphaVectors.size(); i++)
+            // {
+            //     tmpVectors.add(alphaVectors.get(i));
+            // }
+            alphaVectors.clear();
+            // tmpVectors.get(0).printAlphaVector();
             for (int i = 0; i < MAX_ITER_IMP; ++i)
             {
                 // compute a vector to store alpha_a_o values
@@ -212,6 +251,7 @@ public class PbviPlanner {
                 for (int bi = 0; bi < beliefSet.size(); bi++)
                 {
                     AlphaVector alpha = backup(tmpVectors, beliefSet.get(bi), AlphaAOVecs, rewardVectors, gamma, Pb);
+                    // alpha.printAlphaVector();
                     if (!checkAlpha(alphaVectors, alpha))
                     {
                         alphaVectors.add(alpha);
@@ -226,7 +266,8 @@ public class PbviPlanner {
                 }
                 else
                 {
-                    tmpVectors = alphaVectors;
+                    tmpVectors = new ArrayList<AlphaVector>(alphaVectors);
+                    // System.out.println("tmp size: " + tmpVectors.size());
                 }
             }
 
@@ -321,15 +362,16 @@ public class PbviPlanner {
                 }
             }
 
+            // System.out.println("dis: " + dis + " MIN_B_ACC: " + MIN_B_ACC);
             if (dis > MIN_B_ACC && selectedIndex > -1)
             {
                 beliefSets.add(tmpBeliefSets.get(selectedIndex));
             }
-            else
-            {
-                System.out.println("The size of belief sets and the given number of belief point do not match.\n");
-                System.exit(0);
-            }
+        }
+        else
+        {
+            System.out.println("The size of belief sets and the given number of belief point do not match.\n");
+            System.exit(0);
         }
     }
 
@@ -357,9 +399,15 @@ public class PbviPlanner {
     
         for (int i = 0; i < MAX_ITER_G; i++)
         {
-            ArrayList<AlphaVector> tmpVec = alphaVectors;
+            ArrayList<AlphaVector> tmpVec = new ArrayList<AlphaVector>(alphaVectors);
             improve(alphaVectors, beliefSet, rewardVectors, gamma, MAX_ITER_I, Pb);
+            for (AlphaVector alpha : alphaVectors)
+            {
+                alpha.printAlphaVector();
+            }
             expand(beliefSet, MAX_BP, Pb);
+            System.out.println("B: " + beliefSet.size());
+            System.out.println("alpha size: " + alphaVectors.size());
             if (checkConvergence(tmpVec, alphaVectors, err))
             {
                 System.out.println("Plan converged at iteration: " + i + "\n");

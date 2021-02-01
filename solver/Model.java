@@ -3,9 +3,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 
-public class Parser implements PomdpInterface {
+public class Model implements PomdpInterface {
 
-    public Parser() {
+    public Model() {
 
         ArrayList<String> Actions = new ArrayList<String>();
         Actions.add("turnLeft");
