@@ -52,6 +52,10 @@ public class Tiger implements PomdpInterface {
         
 
         // reward function
+        // a = listen r = -1
+        // a = left s = left -100
+        // a = right s = right -100
+        // else 10
         for (int ai = 0; ai < actionSize; ai++)
         {
             ArrayList<Double> tmptmp = new ArrayList<Double>();
@@ -83,6 +87,9 @@ public class Tiger implements PomdpInterface {
         this.Rewards = R;
 
         // observation function
+        // P(o|a,s')
+        // P(o|left or right, s')=0.5
+        // P(o=tLeft|a=listen, s'=left)=P(o=rRight|a=listen, s'=right)=0.85
         for (int ai = 0; ai < actionSize; ai++)
         {
             ArrayList<ArrayList<Double>> tmptmptmp = new ArrayList<ArrayList<Double>>(); 
@@ -131,6 +138,9 @@ public class Tiger implements PomdpInterface {
         // }
     
         // transition function
+        // P(s'|a, s)
+        // P(s'|listen, s)=1 if s'=s
+        // P(s'|a=left, s)=P(s'|a=right, s)=0.5
         for (int ai = 0; ai < actionSize; ai++)
         {
             ArrayList<ArrayList<Double>> tmptmptmp = new ArrayList<ArrayList<Double>>(); 

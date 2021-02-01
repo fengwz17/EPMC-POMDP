@@ -10,7 +10,8 @@ public class PbviPlanner {
     private ArrayList<AlphaVector> alphaVectors;
     private ArrayList<ArrayList<Double>> rewardVectors;
     private Double gamma;
-    private Double err = Double.MIN_VALUE;
+    // private Double err = Double.MIN_VALUE;
+    private Double err = 1e-6;
     private int MAX_BP; // max Belief set size
     private int MAX_ITER_GLOBAL; // max iteration number in PBVI main alogrithm
     private int MAX_ITER_IMP; // max iteration number during improving process
@@ -221,6 +222,8 @@ public class PbviPlanner {
         {
             for (int i = 0; i < vectorsA.size(); i++)
             {
+                // System.out.println("dis: " + DistanceAlpha(vectorsA.get(i), vectorsB.get(i)));
+                // System.out.println("err: " + err);
                 if (DistanceAlpha(vectorsA.get(i), vectorsB.get(i)) > err)
                 {
                     return false;
@@ -259,6 +262,7 @@ public class PbviPlanner {
                 }
 
                 // check converged
+                // System.out.println("----check improve-----");
                 if (checkConvergence(tmpVectors, alphaVectors, err))
                 {
                     System.out.println("Converged in improvement at iteration: " + i + "\n");
@@ -401,18 +405,37 @@ public class PbviPlanner {
         {
             ArrayList<AlphaVector> tmpVec = new ArrayList<AlphaVector>(alphaVectors);
             improve(alphaVectors, beliefSet, rewardVectors, gamma, MAX_ITER_I, Pb);
-            for (AlphaVector alpha : alphaVectors)
-            {
-                alpha.printAlphaVector();
-            }
+          
             expand(beliefSet, MAX_BP, Pb);
             System.out.println("B: " + beliefSet.size());
             System.out.println("alpha size: " + alphaVectors.size());
+
+            // System.out.println(".....tmp.....");
+            // for (AlphaVector tmpA : tmpVec)
+            // {
+            //     tmpA.printAlphaVector();
+            // }
+            // System.out.println(".....tmp end.....");
+            // System.out.println(".....alpha.....");
+            // for (AlphaVector alpha : alphaVectors)
+            // {
+            //     alpha.printAlphaVector();
+            // }
+            // System.out.println(".....alpha end.....");
+            // System.out.println("----check plan-----");
             if (checkConvergence(tmpVec, alphaVectors, err))
             {
+                for (Belief belief : beliefSet)
+                {
+                    belief.printBelief();
+                }
                 System.out.println("Plan converged at iteration: " + i + "\n");
                 return;
             }
+        }
+        for (Belief belief : beliefSet)
+        {
+            belief.printBelief();
         }
     }
 
