@@ -36,6 +36,12 @@ public class Solver {
         end = System.currentTimeMillis();  
         System.out.println("...End...");
         System.out.println("start time:" + start+ "; end time:" + end+ "; Run Time:" + (end - start) + "(ms)");
+        
+        Simulator s = new Simulator();
+        int initState = 0;
+        ArrayList<Double> initStateProb = new ArrayList<Double>(s.sampleInitBelief(initState));
+        Belief iniBelief = new Belief(initStateProb);
+        s.simulate(iniBelief, PbviPlanner.getValueFunction(), 20);
     }
 
 }

@@ -12,4 +12,7 @@ public interface PomdpInterface {
     public Double obsFunction(int aI, int nexSI, int oI);
     public Double reward(int ai, int si);
 
+    public ArrayList<String> getAction();
+    public ArrayList<Integer> getObservations();
+
 }

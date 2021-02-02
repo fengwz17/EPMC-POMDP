@@ -194,8 +194,6 @@ public class Tiger implements PomdpInterface {
     }
 
     
-
-    
     @Override
     public int getSizeofStates() {
         return this.stateSize;
@@ -230,6 +228,16 @@ public class Tiger implements PomdpInterface {
     public Double reward(int ai, int si) {
         return this.Rewards.get(ai).get(si);
     };
+
+    @Override
+    public ArrayList<String> getAction() {
+        return this.Actions;
+    }
+
+    @Override
+    public ArrayList<Integer> getObservations() {
+        return this.Observations;
+    }
 
     private int obsSize;
     private int actionSize;
