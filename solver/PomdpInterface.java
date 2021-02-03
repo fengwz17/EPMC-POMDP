@@ -1,6 +1,7 @@
 package solver;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public interface PomdpInterface {
     
@@ -14,5 +15,5 @@ public interface PomdpInterface {
 
     public ArrayList<String> getAction();
     public ArrayList<Integer> getObservations();
-
+    public ArrayList<HashMap<String, Integer>> getStates(); 
 }

@@ -239,6 +239,12 @@ public class Tiger implements PomdpInterface {
         return this.Observations;
     }
 
+    @Override
+    public ArrayList<HashMap<String, Integer>> getStates() {
+        ArrayList<HashMap<String, Integer>> fakeState = new ArrayList<HashMap<String, Integer>>();
+        return fakeState;
+    }
+
     private int obsSize;
     private int actionSize;
     private int stateSize;

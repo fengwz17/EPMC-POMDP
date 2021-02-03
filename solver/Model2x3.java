@@ -1,24 +1,26 @@
 // condering the simplest model
-// (0,1) (1,1)
-// (0,0) (1,0)
-// x \in {0,1} y \in {0,1}
-// action \in {goAhead, turnRight, hover} 
+// (0,3) (1,3) (2,3)
+// (0,2) (1,2) (2,2)
+// (0,1) (1,1) (2,1)
+// (0,0) (1,0) (2,0)
+// x \in {0,1,2} y \in {0,1,2,3}
+// action \in {goAhead, goRight, hover} 
 // intruder's action \in {left, down}
 // observation \in {no-detection, front, right, crash}
-// target: (1,1)
+// target: (2,3)
 
 package solver;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 
-public class Model2x2 implements PomdpInterface {
+public class Model2x3 implements PomdpInterface {
 
-    public Model2x2() {
+    public Model2x3() {
 
         ArrayList<String> Actions = new ArrayList<String>();
         Actions.add("goAhead");
-        Actions.add("turnRight");
+        Actions.add("goRight");
         Actions.add("hover");
         this.Actions = Actions;
         this.actionSize = Actions.size();
@@ -31,11 +33,6 @@ public class Model2x2 implements PomdpInterface {
         Observations.add(3);
         this.Observations = Observations;
         this.obsSize = Observations.size();
-
-        // x1 = {0,1}, y1 = {0,1}
-        // {<(x1, 0),(x2, 0),(y1, 0),(y2, 0)>,
-        //  <(x1, 0),(x2, 0),(y1, 0),(y2, 1)>,
-        //  ... }
     
         ArrayList<HashMap<String, Integer>> States = new ArrayList<HashMap<String, Integer>>();
        // HashMap<String, Integer> tmpState = new HashMap<String, Integer>();
@@ -51,13 +48,13 @@ public class Model2x2 implements PomdpInterface {
 
         ArrayList<Integer> y2 = new ArrayList<Integer>();
         // for(int i = 0; i <= 1; ++i) { y2.add(i); }
-        for (int i = 0; i <= 1; i++)
+        for (int i = 0; i <= 2; i++)
         {
-            for (int j = 0; j <= 1; j++)
+            for (int j = 0; j <= 3; j++)
             {
-                for (int m = 0; m <= 1; m++)
+                for (int m = 0; m <= 2; m++)
                 {
-                    for (int n = 0; n <= 1; n++)
+                    for (int n = 0; n <= 3; n++)
                     {
                         x1.add(i);
                         x2.add(j);
@@ -65,8 +62,8 @@ public class Model2x2 implements PomdpInterface {
                         y2.add(n);
                         HashMap<String, Integer> tmpState = new HashMap<String, Integer>();
                         tmpState.put("x1",i);
-                        tmpState.put("x2",j);
-                        tmpState.put("y1",m);
+                        tmpState.put("y1",j);
+                        tmpState.put("x2",m);
                         tmpState.put("y2",n);
                         States.add(tmpState);
                     }
@@ -86,6 +83,14 @@ public class Model2x2 implements PomdpInterface {
         ArrayList<Double> b0 = new ArrayList<Double>();
         for (int i = 0; i < States.size(); i++)
         {   
+            // if (i == 11)
+            // {
+            //     b0.add(1.0);
+            // }
+            // else
+            // {
+            //     b0.add(0.0);
+            // }
             b0.add(b);
         }
         this.belief = b0;
@@ -110,20 +115,21 @@ public class Model2x2 implements PomdpInterface {
                 // System.out.println("y2: " + tmp.get("y2"));
                 // System.out.println("x dis: " + Math.pow(tmp.get("x1") - tmp.get("x2"), 2) + " y dis: " + Math.pow(tmp.get("y1") - tmp.get("y2"), 2));
                 
-                if (Math.pow(tmp.get("x1") - tmp.get("x2"), 2) + Math.pow(tmp.get("y1") - tmp.get("y2"), 2) < 1 * 1)
+                if ((tmp.get("x2") - tmp.get("x1")) >= 0 && (tmp.get("x2") - tmp.get("x1") <= 1) 
+                    && (tmp.get("y2") - tmp.get("y1") >= 0) && (tmp.get("y2") - tmp.get("y1") <= 1))
                 {
                     // System.out.println("x1: " + tmp.get("x1") + " y1: " + tmp.get("y1") + " x2: " + tmp.get("x2") + " y2: " + tmp.get("y2"));
-                    tmptmp.add(-10000.0);
+                    tmptmp.add(-1000000.0);
                 }
                 else
                 {
-                    if (tmp.get("x1") == 1 && tmp.get("y1") == 1)
+                    if (tmp.get("x1") == 2 && tmp.get("y1") == 3)
                     {
-                        tmptmp.add(1000.0);
+                        tmptmp.add(100.0);
                     }
                     else
                     {
-                        tmptmp.add(0.0);
+                        tmptmp.add(-1.0);
                     }
                 }
                 
@@ -149,86 +155,56 @@ public class Model2x2 implements PomdpInterface {
                 for (int oi = 0; oi < obsSize; oi++)
                 {   
                     // crash
-                    if (Math.pow((x - xx), 2) + Math.pow((y - yy), 2) < 1 * 1)
+                    if ((xx == x && yy == y) || (xx == x + 1 && yy == y) || (xx == x && yy == y + 1) || (xx == x + 1 && yy == y + 1))
                     {
                         // System.out.println("crash:  x1: " + x + " y1: " + y + " x2: " + xx + " y2: " + yy);
                         if (Observations.get(oi) == 3)
                         {
-                            tmptmp.add(0.8);
+                            tmptmp.add(0.85);
                         }
                         else
                         {
-                            tmptmp.add(0.1);
+                            tmptmp.add(0.05);
                         }
                     }
-
                     // detect
-                    else if (Math.pow((x - xx), 2) + Math.pow((y - yy), 2) == 1 * 1)
+                    // front
+                    else if ((xx == x && yy == y + 2) || (xx == x + 1 && yy == y + 2))
                     {    
-                        // front
-                        if ((xx == x) && (yy > y))
+                       
+                        if (Observations.get(oi) == 1)
                         {
-                            if (Observations.get(oi) == 1)
-                            {
-                                tmptmp.add(0.8);
-                            }
-                            else if (Observations.get(oi) == 2)
-                            {
-                                tmptmp.add(0.1);
-                            }
-                            else
-                            {
-                                tmptmp.add(0.1);
-                            }
+                            tmptmp.add(0.85);
                         }
-
-                        // right
-                        else if ((xx > x) &&  (yy == y))
-                        {
-                            if (Observations.get(oi) == 2)
-                            {
-                                tmptmp.add(0.8);
-                            }
-                            else if (Observations.get(oi) == 1)
-                            {
-                                tmptmp.add(0.1);
-                            }
-                            else
-                            {
-                                tmptmp.add(0.1);
-                            }
-                        }
-                        
                         else
                         {
-                            if (Observations.get(oi) == 0)
-                            {
-                                tmptmp.add(0.8);
-                            }
-                            else
-                            {
-                                tmptmp.add(0.1);
-                            }
+                            tmptmp.add(0.05);
                         }
                     }
-
+                    // right
+                    else if ((xx == x + 2 && yy == y) || (xx == x + 2 && yy == y + 1))
+                    {
+                        if (Observations.get(oi) == 2)
+                        {
+                            tmptmp.add(0.85);
+                        }
+                        else
+                        {
+                            tmptmp.add(0.05);
+                        }
+                    }
                     // no-detection
                     else
                     {
                         if (Observations.get(oi) == 0)
                         {
-                            tmptmp.add(0.8);
-                        }
-                        else if (Observations.get(oi) == 1)
-                        {
-                            tmptmp.add(0.1);
+                            tmptmp.add(0.85);
                         }
                         else
                         {
-                            tmptmp.add(0.1);
+                            tmptmp.add(0.05);
                         }
                     }
-
                 }
                 tmptmptmp.add(tmptmp);
             }
@@ -275,7 +251,7 @@ public class Model2x2 implements PomdpInterface {
                     //   + " nx2: " + nxx + " ny2: " + nyy); 
                     if (Actions.get(ai) == "goAhead")
                     {
-                        if (y == 0)
+                        if (y < 3)
                         {
                             if ((nx == x) && (ny == y + 1))
                             {
@@ -291,7 +267,7 @@ public class Model2x2 implements PomdpInterface {
                                     }
                                     
                                 }
-                                else if ((xx == 0) && (yy == 1))
+                                else if ((xx == 0 && yy == 1) || (xx == 0 && yy == 2) || (xx == 0 && yy == 3))
                                 {
                                     if ((nxx == xx) && (nyy == yy - 1))
                                     {
@@ -302,7 +278,7 @@ public class Model2x2 implements PomdpInterface {
                                         tmptmp.add(0.0);
                                     }
                                 }
-                                else if ((xx == 1) && (yy == 0))
+                                else if ((xx == 1) && (yy == 0) || (xx == 2) && (yy == 0))
                                 {
                                     if ((nxx == xx - 1) && (nyy == yy))
                                     {
@@ -313,7 +289,7 @@ public class Model2x2 implements PomdpInterface {
                                         tmptmp.add(0.0);
                                     }
                                 }
-                                else if ((xx == 1) && (yy == 1))
+                                else if (xx >= 1 && yy >= 1)
                                 {
                                     if ((nxx == xx - 1) && (nyy == yy))
                                     {
@@ -328,6 +304,7 @@ public class Model2x2 implements PomdpInterface {
                                         tmptmp.add(0.0);
                                     }
                                 }
+
                                 else
                                 {
                                     tmptmp.add(0.0);
@@ -337,16 +314,15 @@ public class Model2x2 implements PomdpInterface {
                             {
                                 tmptmp.add(0.0);
                             }
-                            
                         }
                         else
                         {
                             tmptmp.add(0.0);
                         }
                     }
-                    if (Actions.get(ai) == "turnRight")
+                    else if (Actions.get(ai) == "goRight")
                     {
-                        if (x == 0)
+                        if (x < 2)
                         {
                             if ((nx == x + 1) && (ny == y))
                             {
@@ -362,7 +338,7 @@ public class Model2x2 implements PomdpInterface {
                                     }
                                     
                                 }
-                                else if ((xx == 0) && (yy == 1))
+                                else if ((xx == 0 && yy == 1) || (xx == 0 && yy == 2) || (xx == 0 && yy == 3))
                                 {
                                     if ((nxx == xx) && (nyy == yy - 1))
                                     {
@@ -373,7 +349,7 @@ public class Model2x2 implements PomdpInterface {
                                         tmptmp.add(0.0);
                                     }
                                 }
-                                else if ((xx == 1) && (yy == 0))
+                                else if ((xx == 1) && (yy == 0) || (xx == 2) && (yy == 0))
                                 {
                                     if ((nxx == xx - 1) && (nyy == yy))
                                     {
@@ -384,7 +360,7 @@ public class Model2x2 implements PomdpInterface {
                                         tmptmp.add(0.0);
                                     }
                                 }
-                                else if ((xx == 1) && (yy == 1))
+                                else if (xx >= 1 && yy >= 1)
                                 {
                                     if ((nxx == xx - 1) && (nyy == yy))
                                     {
@@ -399,6 +375,7 @@ public class Model2x2 implements PomdpInterface {
                                         tmptmp.add(0.0);
                                     }
                                 }
+
                                 else
                                 {
                                     tmptmp.add(0.0);
@@ -408,14 +385,13 @@ public class Model2x2 implements PomdpInterface {
                             {
                                 tmptmp.add(0.0);
                             }
-                            
                         }
                         else
                         {
                             tmptmp.add(0.0);
                         }
                     }
-                    if (Actions.get(ai) == "hover")
+                    else if (Actions.get(ai) == "hover")
                     {
                         if ((nx == x) && (ny == y))
                         {
@@ -431,7 +407,7 @@ public class Model2x2 implements PomdpInterface {
                                 }
                                 
                             }
-                            else if ((xx == 0) && (yy == 1))
+                            else if ((xx == 0 && yy == 1) || (xx == 0 && yy == 2) || (xx == 0 && yy == 3))
                             {
                                 if ((nxx == xx) && (nyy == yy - 1))
                                 {
@@ -442,7 +418,7 @@ public class Model2x2 implements PomdpInterface {
                                     tmptmp.add(0.0);
                                 }
                             }
-                            else if ((xx == 1) && (yy == 0))
+                            else if ((xx == 1) && (yy == 0) || (xx == 2) && (yy == 0))
                             {
                                 if ((nxx == xx - 1) && (nyy == yy))
                                 {
@@ -453,7 +429,7 @@ public class Model2x2 implements PomdpInterface {
                                     tmptmp.add(0.0);
                                 }
                             }
-                            else if ((xx == 1) && (yy == 1))
+                            else if (xx >= 1 && yy >= 1)
                             {
                                 if ((nxx == xx - 1) && (nyy == yy))
                                 {
@@ -468,6 +444,7 @@ public class Model2x2 implements PomdpInterface {
                                     tmptmp.add(0.0);
                                 }
                             }
+
                             else
                             {
                                 tmptmp.add(0.0);
@@ -478,7 +455,12 @@ public class Model2x2 implements PomdpInterface {
                             tmptmp.add(0.0);
                         }
                     }
-                    // System.out.println(tmptmp);
+                    else
+                    {
+                        System.out.println("Wrong action");
+                        System.exit(0);
+                    }
+                    
                 }       
                 tmptmptmp.add(tmptmp);
             }
@@ -538,6 +520,21 @@ public class Model2x2 implements PomdpInterface {
     @Override
     public Double reward(int ai, int si) {
         return this.Rewards.get(ai).get(si);
+    };
+
+    @Override
+    public ArrayList<String> getAction() {
+        return this.Actions;
+    };
+
+    @Override
+    public ArrayList<Integer> getObservations() {
+        return this.Observations;
+    };
+
+    @Override
+    public ArrayList<HashMap<String, Integer>> getStates() {
+        return this.States;
     };
 
     private int obsSize;

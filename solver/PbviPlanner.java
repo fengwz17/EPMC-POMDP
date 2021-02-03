@@ -11,7 +11,7 @@ public class PbviPlanner {
     private ArrayList<ArrayList<Double>> rewardVectors;
     private Double gamma;
     // private Double err = Double.MIN_VALUE;
-    private Double err = 1e-6;
+    private Double err = 1.0;
     private int MAX_BP; // max Belief set size
     private int MAX_ITER_GLOBAL; // max iteration number in PBVI main alogrithm
     private int MAX_ITER_IMP; // max iteration number during improving process
@@ -33,6 +33,7 @@ public class PbviPlanner {
             for (int nSI = 0; nSI < alpha.getSize(); nSI++)
             {
                 // System.out.println(alpha.getIndex(nSI) + " " + Pb.obsFunction(aI, nSI, oI) + " " + Pb.transFunction(aI, sI, nSI));
+                // System.out.println("aI,sI,nSI: " + aI + " " + sI + " " + nSI);
                 probState += alpha.getIndex(nSI) * Pb.obsFunction(aI, nSI, oI) * Pb.transFunction(aI, sI, nSI);
                 // System.out.println("prob: " + probState);
             }
@@ -421,22 +422,23 @@ public class PbviPlanner {
             // {
             //     alpha.printAlphaVector();
             // }
+            // alphaVectors.get(0).printAlphaVector();
             // System.out.println(".....alpha end.....");
             // System.out.println("----check plan-----");
             if (checkConvergence(tmpVec, alphaVectors, err))
             {
-                for (Belief belief : beliefSet)
-                {
-                    belief.printBelief();
-                }
+                // for (Belief belief : beliefSet)
+                // {
+                //     belief.printBelief();
+                // }
                 System.out.println("Plan converged at iteration: " + i + "\n");
                 return;
             }
         }
-        for (Belief belief : beliefSet)
-        {
-            belief.printBelief();
-        }
+        // for (Belief belief : beliefSet)
+        // {
+        //     belief.printBelief();
+        // }
     }
 
     public void plan() {
@@ -463,7 +465,7 @@ public class PbviPlanner {
                 {
                     Rmin = Pb.reward(aI, sI);
                     select_aI = aI;
-                    System.out.println("Rmin: " + Rmin + "aI: " + aI);
+                    System.out.println("Rmin: " + Rmin + " aI: " + aI);
                 }
             }
             alphaValues.add(Rmin/(1-gamma));

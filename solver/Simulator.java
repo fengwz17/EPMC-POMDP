@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Simulator {
-    PomdpInterface Pb = new Tiger();
+    PomdpInterface Pb = new Model2x3();
     public ArrayList<Double> sampleInitBelief(int initState) {
         ArrayList<Double> prob_states = new ArrayList<Double>();
         for (int i = 0; i < Pb.getSizeofStates(); i++)
@@ -23,12 +23,13 @@ public class Simulator {
     public int getAction(Belief currB, ArrayList<AlphaVector> alphaVecs) {
         double max = - Double.MAX_VALUE;
         int optActionIndex = 0;
-        double tmp = 0;
+       
         for (AlphaVector alpha : alphaVecs)
         {
+            double tmp = 0;
             if (currB.getSize() != alpha.getSize())
             {
-                System.out.println("Wrong belief size and alpha size");
+                System.out.println("Wrong belief size and alpha size" + " currB size: " + currB.getSize() + " alpha size: " + alpha.getSize());
             }
             for (int i = 0; i < currB.getSize(); i++)
             {
@@ -39,6 +40,7 @@ public class Simulator {
                 max = tmp;
                 optActionIndex = alpha.getActionIndex();
             }
+            // System.out.println("max: " + max);
         }
         return optActionIndex;
     }
@@ -57,6 +59,24 @@ public class Simulator {
             }
             probOBA += probNewSI;
         }
+        // if (Math.abs(probOBA - 0.0) < 0.0001)
+        // {
+        //     System.out.println("oI: " + oI + " aI: " + aI);
+        //     for (int nexSI = 0; nexSI < Pb.getSizeofStates(); nexSI++)
+        //     {
+        //         for (int s = 0; s < Pb.getSizeofStates(); s++)
+        //         {
+        //             double x = Pb.transFunction(aI, s, nexSI);
+        //             double y = Pb.obsFunction(aI, nexSI, oI);
+        //             double z = b.get(s);
+        //             if (Math.abs(x - 0.0) < 0.000000001 || Math.abs(y - 0.0) < 0.000000001 || Math.abs(z - 0.0) < 0.000000001)
+        //             {
+        //                 System.out.println("nexSI: " + nexSI + " s: " + s + " " +  x + " " + y + " " + z );
+        //             }
+                    
+        //         }
+        //     }
+        // }
         return probOBA;
     }
     
@@ -77,12 +97,19 @@ public class Simulator {
                 bAindexValue.add(probNewSAO);
             }
         }
+        // else
+        // {
+        //     System.out.println("err");
+        //     System.out.println("probOBA: " + probOBA);
+        //     System.exit(0);
+        // }
         Belief bAO = new Belief(bAindexValue);
         return bAO;
     }
+
     
     public void simulate(Belief initBelief, ArrayList<AlphaVector> alphaVecs, int stepNum) {
-        PomdpInterface Pb = new Tiger();
+        PomdpInterface Pb = new Model2x3();
         int currState = 0;
         double transProb = 0.0;
         double obsProb = 0.0;
@@ -104,21 +131,27 @@ public class Simulator {
         
         for (int step = 0; step < stepNum; step++)
         {
-           
+            // for (AlphaVector alpha : alphaVecs)
+            // {
+            //     alpha.printAlphaVector();            
+            // }
+            // currBelief.printBelief();
             int currAction = 0;
             currAction = getAction(currBelief, alphaVecs);
             reward += Pb.reward(currAction, currState);
             String out;
             out = "step: " + step + " action: " + Pb.getAction().get(currAction) + " currState: " + currState ;
+            out += " currPosition: " + Pb.getStates().get(currState).get("x1") + " " + Pb.getStates().get(currState).get("y1");
+            out += " " + Pb.getStates().get(currState).get("x2") + " " + Pb.getStates().get(currState).get("y2");
             out += " reward: " + reward;
             Random r = new Random();
-            int Statechoice = r.nextInt(1000);
+            int Statechoice = r.nextInt(10000);
             int currentSum = 0;
             int selectNexState = 0;
             for (int nexSi = 0; nexSi < Pb.getSizeofStates(); nexSi++)
             {
                 transProb = Pb.transFunction(currAction, currState, nexSi);
-                int nextCurrentSum = currentSum + (int)(transProb*1000);
+                int nextCurrentSum = currentSum + (int)(transProb*10000);
                 if(Statechoice >= currentSum && Statechoice < nextCurrentSum)
                 {
                     selectNexState = nexSi;
@@ -127,14 +160,17 @@ public class Simulator {
                 currentSum = nextCurrentSum;
             }  
             out += " nexState: " + selectNexState;
-            int Obschoice = r.nextInt(1000);
+            out += " next position: " + Pb.getStates().get(selectNexState).get("x1") + " " + Pb.getStates().get(selectNexState).get("y1");
+            out += " " + Pb.getStates().get(selectNexState).get("x2") + " " + Pb.getStates().get(selectNexState).get("y2");
+            currState = selectNexState;
+            int Obschoice = r.nextInt(10000);
             int currentObsSum = 0;
             int selectObs = 0;
 
             for (int o = 0; o < Pb.getSizeObservables(); o++)
             {
                 obsProb = Pb.obsFunction(currAction, selectNexState, o);  
-                int nextCurrObsSum = currentObsSum + (int)(obsProb*1000);
+                int nextCurrObsSum = currentObsSum + (int)(obsProb*10000);
                 if(Obschoice >= currentObsSum && Obschoice < nextCurrObsSum)
                 {
                     selectObs = o;
