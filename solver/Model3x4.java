@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 
-public class Model2x3 implements PomdpInterface {
+public class Model3x4 implements PomdpInterface {
 
-    public Model2x3() {
+    public Model3x4() {
 
         ArrayList<String> Actions = new ArrayList<String>();
         Actions.add("goAhead");

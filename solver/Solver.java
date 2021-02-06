@@ -10,7 +10,7 @@ public class Solver {
         long start,end;
         start = System.currentTimeMillis();
 
-        PomdpInterface Pb = new Model2x3();
+        PomdpInterface Pb = new Model3x4();
         // System.out.println("R: " + Pb.reward(0,0));
         // Belief b0 = new Belief(Pb.getInitBelief());
         // b0.printBelief();
@@ -37,7 +37,7 @@ public class Solver {
         System.out.println("...End...");
         System.out.println("start time:" + start+ "; end time:" + end + "; Run Time:" + (end - start) + "(ms)");
         
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 50; i++)
         {
             Simulator s = new Simulator();
             int initState = 0;

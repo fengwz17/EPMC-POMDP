@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Simulator {
-    PomdpInterface Pb = new Model2x3();
+    PomdpInterface Pb = new Model3x4();
     public ArrayList<Double> sampleInitBelief(int initState) {
         ArrayList<Double> prob_states = new ArrayList<Double>();
         for (int i = 0; i < Pb.getSizeofStates(); i++)
@@ -109,7 +109,7 @@ public class Simulator {
 
     
     public void simulate(Belief initBelief, ArrayList<AlphaVector> alphaVecs, int stepNum) {
-        PomdpInterface Pb = new Model2x3();
+        PomdpInterface Pb = new Model3x4();
         int currState = 0;
         double transProb = 0.0;
         double obsProb = 0.0;
